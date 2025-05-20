@@ -1,0 +1,37 @@
+.navbar {
+  background-color: #00bcd4; /* Azul aguamarina */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-button {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-button:hover {
+  background-color: #008c9e;
+}
