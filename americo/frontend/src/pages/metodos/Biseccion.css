@@ -1,0 +1,74 @@
+.biseccion-page {
+  max-width: 900px;
+  margin: auto;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+input {
+  padding: 0.4rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 0.6rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.resultado-container {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.tabla-scroll {
+  overflow-x: auto;
+  max-height: 500px;
+}
+
+.tabla-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-scroll th,
+.tabla-scroll td {
+  padding: 0.5rem;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+.plot-container {
+  margin-top: 2rem;
+}
+
+.informe-btn {
+  margin-top: 1rem;
+}

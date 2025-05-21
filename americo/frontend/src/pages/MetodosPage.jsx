@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
 import './MetodosPage.css';
 
 const MetodosPage = () => {
@@ -11,7 +10,6 @@ const MetodosPage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="metodos-container">
         <h2>Explora los Métodos</h2>
 
@@ -19,7 +17,7 @@ const MetodosPage = () => {
           <button onClick={() => toggle('c1')} className="dropdown-btn">Capítulo 1</button>
           {open.c1 && (
             <ul className="dropdown-list">
-              <li>Bisección</li>
+              <li><a href="/metodo/biseccion">Bisección</a></li>
               <li>Regla Falsa</li>
               <li>Punto Fijo</li>
               <li>Newton</li>
