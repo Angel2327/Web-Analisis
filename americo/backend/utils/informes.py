@@ -1,0 +1,12 @@
+def generar_informe_jacobi(A, b, x0, tol, max_iter, solucion, iteraciones, radio_espectral, converge):
+    # Por ahora solo imprime (esto se puede reemplazar por un generador de PDF o DOCX)
+    print("Generando informe del método de Jacobi...")
+    print("Matriz A:", A)
+    print("Vector b:", b)
+    print("x0:", x0)
+    print("Tolerancia:", tol)
+    print("Máx iteraciones:", max_iter)
+    print("Solución:", solucion)
+    print("Radio espectral:", radio_espectral)
+    print("¿Converge?:", "Sí" if converge else "No")
+    print("Iteraciones:", iteraciones)

@@ -31,7 +31,7 @@ const MetodosPage = () => {
           <button onClick={() => toggle('c2')} className="dropdown-btn">Capítulo 2</button>
           {open.c2 && (
             <ul className="dropdown-list">
-              <li>Jacobi</li>
+              <li><a href="/metodo/jacobi">Jacobi</a></li>
               <li>Gauss-Seidel</li>
               <li>SOR</li>
             </ul>

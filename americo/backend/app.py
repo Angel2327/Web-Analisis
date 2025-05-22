@@ -1,12 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from metodos.biseccion import metodo_biseccion
-from metodos.regla_falsa import metodo_regla_falsa
-from metodos.punto_fijo import metodo_punto_fijo
-from metodos.newton import metodo_newton
-from metodos.secante import metodo_secante
-from metodos.raices_multiples import metodo_raices_multiples
-
+from metodos.capitulo1.biseccion import metodo_biseccion
+from metodos.capitulo1.regla_falsa import metodo_regla_falsa
+from metodos.capitulo1.punto_fijo import metodo_punto_fijo
+from metodos.capitulo1.newton import metodo_newton
+from metodos.capitulo1.secante import metodo_secante
+from metodos.capitulo1.raices_multiples import metodo_raices_multiples
+from metodos.capitulo2.jacobi import metodo_jacobi
 
 app = Flask(__name__)
 CORS(app)
@@ -80,6 +80,25 @@ def raices_multiples():
 
     resultado, codigo = metodo_raices_multiples(funcion, x0, tolerancia, max_iter)
     return jsonify(resultado), codigo
+
+@app.route('/api/jacobi', methods=['POST'])
+def jacobi():
+    data = request.json
+    matrizA = data.get("matrix")
+    vectorB = data.get("vector")
+    x0 = data.get("x0")
+    tolerancia = data.get("tolerance")
+    max_iter = data.get("iterations")
+
+    try:
+        tolerancia = float(tolerancia)
+        max_iter = int(max_iter)
+    except Exception:
+        return jsonify({"error": "Tolerancia o número máximo de iteraciones inválidos."}), 400
+
+    resultado, codigo = metodo_jacobi(matrizA, vectorB, x0, tolerancia, max_iter)
+    return jsonify(resultado), codigo
+
 
 if __name__ == '__main__':
     app.run(port=8000)
