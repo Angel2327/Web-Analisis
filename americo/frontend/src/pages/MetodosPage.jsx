@@ -32,7 +32,7 @@ const MetodosPage = () => {
           {open.c2 && (
             <ul className="dropdown-list">
               <li><a href="/metodo/jacobi">Jacobi</a></li>
-              <li><a href="/metodo/jacobi">Gauss-Seidel</a></li>
+              <li><a href="/metodo/gauss-seidel">Gauss-Seidel</a></li>
               <li>SOR</li>
             </ul>
           )}

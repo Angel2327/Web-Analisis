@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Jacobi.css"; // Reutilizamos el estilo
+import "./Jacobi.css";
 
 const GaussSeidel = () => {
   const [n, setN] = useState(3);
@@ -9,6 +9,7 @@ const GaussSeidel = () => {
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
   const [iterations, setIterations] = useState("");
+  const [norm, setNorm] = useState("inf");
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
 
@@ -24,6 +25,10 @@ const GaussSeidel = () => {
     newVec[index] = value;
     if (setter === vectorB) setVectorB(newVec);
     else setX0(newVec);
+  };
+
+  const handleNormChange = (e) => {
+    setNorm(e.target.value);
   };
 
   const handleTamañoChange = (newN) => {
@@ -51,6 +56,7 @@ const GaussSeidel = () => {
         x0: parsedX0,
         tolerance,
         iterations,
+        norm,
       });
 
       setResultado(response.data);
@@ -148,6 +154,16 @@ const GaussSeidel = () => {
           />
         </label>
 
+        <label>
+          Norma:
+          <select value={norm} onChange={handleNormChange}>
+            <option value="1"> 1</option>
+            <option value="2"> 2</option>
+            <option value="3"> 3</option>
+            <option value="inf"> Infinita</option>
+          </select>
+        </label>
+
         <button type="submit">Ejecutar</button>
       </form>
 
@@ -156,10 +172,13 @@ const GaussSeidel = () => {
       {resultado && (
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
+          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
+          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
           <table>
             <thead>
               <tr>
                 <th>Iteración</th>
+                <th>Error</th>
                 {Object.keys(resultado.tabla[0].x).map((key, i) => (
                   <th key={i}>{key}</th>
                 ))}
@@ -169,6 +188,7 @@ const GaussSeidel = () => {
               {resultado.tabla.map((fila, i) => (
                 <tr key={i}>
                   <td>{fila.iteracion}</td>
+                  <td>{parseFloat(fila.error).toExponential(3)}</td>
                   {Object.values(fila.x).map((val, j) => (
                     <td key={j}>{parseFloat(val).toExponential(3)}</td>
                   ))}
@@ -176,8 +196,6 @@ const GaussSeidel = () => {
               ))}
             </tbody>
           </table>
-          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
         </div>
       )}
     </div>

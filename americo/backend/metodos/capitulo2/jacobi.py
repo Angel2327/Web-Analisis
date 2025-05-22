@@ -7,7 +7,7 @@ def radio_espectral(matriz):
     valores, _ = np.linalg.eig(matriz)
     return max(abs(valores))
 
-def metodo_jacobi(matrizA, vectorB, x0, tol, max_iter):
+def metodo_jacobi(matrizA, vectorB, x0, tol, max_iter, norma):
     try:
         A = np.array(matrizA, dtype=float)
         b = np.array(vectorB, dtype=float)
@@ -42,7 +42,14 @@ def metodo_jacobi(matrizA, vectorB, x0, tol, max_iter):
 
     while error > tol and iteracion < max_iter:
         x_new = D_inv @ (b - R @ x_old)
-        error = np.linalg.norm((x_new - x_old) / x_new, ord=np.inf)
+        if norma == "1":
+            error = np.linalg.norm((x_new - x_old) / x_new, ord=1)
+        elif norma == "2":
+            error = np.linalg.norm((x_new - x_old) / x_new, ord=2)
+        elif norma == "3":
+            error = np.linalg.norm((x_new - x_old) / x_new, ord=3)
+        else:
+            error = np.linalg.norm((x_new - x_old) / x_new, ord=np.inf)
         tabla.append({
             "iteracion": iteracion + 1,
             "x": {f"x{i+1}": x_new[i] for i in range(len(x_new))},

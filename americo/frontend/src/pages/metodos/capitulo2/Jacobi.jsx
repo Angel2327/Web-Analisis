@@ -3,12 +3,13 @@ import axios from "axios";
 import "./Jacobi.css";
 
 const Jacobi = () => {
-  const [n, setN] = useState(3); // Tamaño por defecto
+  const [n, setN] = useState(3);
   const [matrix, setMatrix] = useState(Array(3).fill(Array(3).fill("")));
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
   const [iterations, setIterations] = useState("");
+  const [norm, setNorm] = useState("inf");
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
 
@@ -19,10 +20,15 @@ const Jacobi = () => {
     setMatrix(newMatrix);
   };
 
-  const handleVectorChange = (type, index, value) => {
-    const newVec = type === "b" ? [...vectorB] : [...x0];
+  const handleVectorChange = (setter, index, value) => {
+    const newVec = [...setter];
     newVec[index] = value;
-    type === "b" ? setVectorB(newVec) : setX0(newVec);
+    if (setter === vectorB) setVectorB(newVec);
+    else setX0(newVec);
+  };
+
+  const handleNormChange = (e) => {
+    setNorm(e.target.value);
   };
 
   const handleTamañoChange = (newN) => {
@@ -50,6 +56,7 @@ const Jacobi = () => {
         x0: parsedX0,
         tolerance,
         iterations,
+        norm,
       });
 
       setResultado(response.data);
@@ -105,7 +112,7 @@ const Jacobi = () => {
                 type="number"
                 step="any"
                 value={val}
-                onChange={(e) => handleVectorChange("b", i, e.target.value)}
+                onChange={(e) => handleVectorChange(vectorB, i, e.target.value)}
                 required
               />
             ))}
@@ -119,7 +126,7 @@ const Jacobi = () => {
                 type="number"
                 step="any"
                 value={val}
-                onChange={(e) => handleVectorChange("x0", i, e.target.value)}
+                onChange={(e) => handleVectorChange(x0, i, e.target.value)}
                 required
               />
             ))}
@@ -147,6 +154,16 @@ const Jacobi = () => {
           />
         </label>
 
+        <label>
+          Norma:
+          <select value={norm} onChange={handleNormChange}>
+            <option value="1"> 1 </option>
+            <option value="2"> 2 </option>
+            <option value="3"> 3 </option>
+            <option value="inf"> Infinita </option>
+          </select>
+        </label>
+
         <button type="submit">Ejecutar</button>
       </form>
 
@@ -155,6 +172,8 @@ const Jacobi = () => {
       {resultado && (
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
+          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
+          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
           <table>
             <thead>
               <tr>
@@ -177,8 +196,6 @@ const Jacobi = () => {
               ))}
             </tbody>
           </table>
-          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
         </div>
       )}
     </div>

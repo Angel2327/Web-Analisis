@@ -90,6 +90,7 @@ def jacobi():
     x0 = data.get("x0")
     tolerancia = data.get("tolerance")
     max_iter = data.get("iterations")
+    norma = data.get("norm")
 
     try:
         tolerancia = float(tolerancia)
@@ -97,20 +98,21 @@ def jacobi():
     except Exception:
         return jsonify({"error": "Tolerancia o número máximo de iteraciones inválidos."}), 400
 
-    resultado, codigo = metodo_jacobi(matrizA, vectorB, x0, tolerancia, max_iter)
+    resultado, codigo = metodo_jacobi(matrizA, vectorB, x0, tolerancia, max_iter, norma)
     return jsonify(resultado), codigo
 
 @app.route('/api/gauss-seidel', methods=['POST'])
 def gauss_seidel():
     data = request.json
-    matriz = data.get("matrix")
-    b = data.get("vector")
+    matrizA = data.get("matrix")
+    vectorB = data.get("vector")
     x0 = data.get("x0")
-    tol = data.get("tolerance")
+    tolerancia = data.get("tolerance")
     max_iter = data.get("iterations")
+    norma = data.get("norm")
 
-    resultado, codigo = metodo_gauss_seidel(matriz, b, x0, tol, max_iter)
-    return jsonify(resultado), codigo
+    resultado = metodo_gauss_seidel(matrizA, vectorB, x0, tolerancia, max_iter, norma)
+    return jsonify(resultado), 200
 
 
 if __name__ == '__main__':
