@@ -18,11 +18,11 @@ const MetodosPage = () => {
           {open.c1 && (
             <ul className="dropdown-list">
               <li><a href="/metodo/biseccion">Bisección</a></li>
-              <li>Regla Falsa</li>
-              <li>Punto Fijo</li>
-              <li>Newton</li>
-              <li>Secante</li>
-              <li>Raíces múltiples</li>
+              <li><a href="/metodo/regla-falsa">Regla Falsa</a></li>
+              <li><a href="/metodo/punto-fijo">Punto Fijo</a></li>
+              <li><a href="/metodo/newton">Newton</a></li>
+              <li><a href="/metodo/secante">Secante</a></li>
+              <li><a href="/metodo/raices-multiples">Raíces múltiples</a></li>
             </ul>
           )}
         </div>

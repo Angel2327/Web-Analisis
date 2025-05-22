@@ -3,7 +3,7 @@ import axios from 'axios';
 import Plot from 'react-plotly.js';
 import './EstiloMetodos.css';
 
-function Biseccion() {
+function ReglaFalsa() {
   const [params, setParams] = useState({
     funcion: '',
     a: '',
@@ -64,7 +64,7 @@ function Biseccion() {
     }
 
     try {
-      const res = await axios.post('http://localhost:8000/api/biseccion', params);
+      const res = await axios.post('http://localhost:8000/api/regla-falsa', params);
       if (res.data.error) {
         setError(res.data.error);
       } else {
@@ -78,25 +78,25 @@ function Biseccion() {
 
   const generarInforme = () => {
     if (!resultado?.tabla) return;
-    let texto = 'INFORME MÉTODO DE BISECCIÓN\n\n';
+    let texto = 'INFORME MÉTODO DE REGLA FALSA\n\n';
     texto += `Función: ${params.funcion}\n\n`;
-    texto += 'Iteración | a | b | xm | f(xm) | error\n';
+    texto += 'Iteración | a | b | xr | f(xr) | error\n';
     texto += '---------------------------------------\n';
     resultado.tabla.forEach((row, i) => {
-      texto += `Iteración ${i}: a=${row.a}, b=${row.b}, xm=${row.c}, f(xm)=${row["f(c)"]}, error=${row.error}\n`;
+      texto += `Iteración ${i}: a=${row.a}, b=${row.b}, xr=${row.c}, f(xr)=${row["f(c)"]}, error=${row.error}\n`;
     });
 
     const blob = new Blob([texto], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'informe_biseccion.txt';
+    a.download = 'informe_regla_falsa.txt';
     a.click();
   };
 
   return (
     <div className="biseccion-page">
-      <h2>Método de Bisección</h2>
+      <h2>Método de Regla Falsa</h2>
       <form onSubmit={handleSubmit}>
         <label>Función:</label>
         <input
@@ -132,8 +132,8 @@ function Biseccion() {
                   <th>Iteración</th>
                   <th>a</th>
                   <th>b</th>
-                  <th>xm</th>
-                  <th>f(xm)</th>
+                  <th>xr</th>
+                  <th>f(xr)</th>
                   <th>Error</th>
                 </tr>
               </thead>
@@ -178,4 +178,4 @@ function Biseccion() {
   );
 }
 
-export default Biseccion;
+export default ReglaFalsa;

@@ -1,7 +1,7 @@
 import sympy as sp
 import numpy as np
 
-def metodo_biseccion(funcion_str, a, b, tol, max_iter):
+def metodo_regla_falsa(funcion_str, a, b, tol, max_iter):
     x = sp.symbols('x')
     try:
         f_expr = sp.sympify(funcion_str)
@@ -32,10 +32,12 @@ def metodo_biseccion(funcion_str, a, b, tol, max_iter):
 
     tabla = []
     iteracion = 0
-    error = abs(b - a)
+    error = tol + 1  # Inicializa con un valor mayor a la tolerancia
 
     while error > tol and iteracion < max_iter:
-        c = (a + b) / 2
+        fa = f(a)
+        fb = f(b)
+        c = (a * fb - b * fa) / (fb - fa)
         fc = f(c)
 
         tabla.append({
@@ -47,12 +49,12 @@ def metodo_biseccion(funcion_str, a, b, tol, max_iter):
             "error": error
         })
 
-        if f(a) * fc < 0:
+        if fa * fc < 0:
             b = c
         else:
             a = c
 
-        error = abs(b - a)
+        error = abs(f(c))
         iteracion += 1
 
     # Datos para gráfica

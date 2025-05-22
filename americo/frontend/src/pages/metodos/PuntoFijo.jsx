@@ -3,11 +3,11 @@ import axios from 'axios';
 import Plot from 'react-plotly.js';
 import './EstiloMetodos.css';
 
-function Biseccion() {
+function PuntoFijo() {
   const [params, setParams] = useState({
     funcion: '',
-    a: '',
-    b: '',
+    g_funcion: '',
+    x0: '',
     tolerancia: '',
     max_iter: ''
   });
@@ -27,9 +27,9 @@ function Biseccion() {
     setPlotData(null);
 
     const camposObligatorios = [
-      { nombre: 'funcion', mensaje: 'El campo "Función" es obligatorio.' },
-      { nombre: 'a', mensaje: 'El campo "a" es obligatorio.' },
-      { nombre: 'b', mensaje: 'El campo "b" es obligatorio.' },
+      { nombre: 'funcion', mensaje: 'El campo "Función f(x)" es obligatorio.' },
+      { nombre: 'g_funcion', mensaje: 'El campo "Función g(x)" es obligatorio.' },
+      { nombre: 'x0', mensaje: 'El campo "x0" es obligatorio.' },
       { nombre: 'tolerancia', mensaje: 'El campo "Tolerancia" es obligatorio.' },
       { nombre: 'max_iter', mensaje: 'El campo "Máx iteraciones" es obligatorio.' }
     ];
@@ -41,17 +41,12 @@ function Biseccion() {
       }
     }
 
-    const a = parseFloat(params.a);
-    const b = parseFloat(params.b);
+    const x0 = parseFloat(params.x0);
     const tol = parseFloat(params.tolerancia);
     const iter = parseInt(params.max_iter);
 
-    if (isNaN(a) || isNaN(b) || isNaN(tol) || isNaN(iter)) {
+    if (isNaN(x0) || isNaN(tol) || isNaN(iter)) {
       setError('Los valores numéricos deben ser válidos.');
-      return;
-    }
-    if (a >= b) {
-      setError('El valor de "a" debe ser menor que "b".');
       return;
     }
     if (tol <= 0 || tol > 1e-1) {
@@ -64,7 +59,7 @@ function Biseccion() {
     }
 
     try {
-      const res = await axios.post('http://localhost:8000/api/biseccion', params);
+      const res = await axios.post('http://localhost:8000/api/punto-fijo', params);
       if (res.data.error) {
         setError(res.data.error);
       } else {
@@ -78,40 +73,47 @@ function Biseccion() {
 
   const generarInforme = () => {
     if (!resultado?.tabla) return;
-    let texto = 'INFORME MÉTODO DE BISECCIÓN\n\n';
-    texto += `Función: ${params.funcion}\n\n`;
-    texto += 'Iteración | a | b | xm | f(xm) | error\n';
-    texto += '---------------------------------------\n';
+    let texto = 'INFORME MÉTODO DE PUNTO FIJO\n\n';
+    texto += `f(x): ${params.funcion}\n`;
+    texto += `g(x): ${params.g_funcion}\n\n`;
+    texto += 'Iteración | x | g(x) | f(x) | error\n';
+    texto += '-------------------------------------\n';
     resultado.tabla.forEach((row, i) => {
-      texto += `Iteración ${i}: a=${row.a}, b=${row.b}, xm=${row.c}, f(xm)=${row["f(c)"]}, error=${row.error}\n`;
+      texto += `Iteración ${row.iteracion}: x=${row.x}, g(x)=${row["g(x)"]}, f(x)=${row["f(x)"]}, error=${row.error}\n`;
     });
 
     const blob = new Blob([texto], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'informe_biseccion.txt';
+    a.download = 'informe_punto_fijo.txt';
     a.click();
   };
 
   return (
     <div className="biseccion-page">
-      <h2>Método de Bisección</h2>
+      <h2>Método de Punto Fijo</h2>
       <form onSubmit={handleSubmit}>
-        <label>Función:</label>
+        <label>Función f(x):</label>
         <input
           type="text"
           name="funcion"
           value={params.funcion}
           onChange={handleChange}
-          placeholder="Ej: log(sin(x)^2 + 1)-(1/2)"
+          placeholder="Ej: x**3 + 4*x**2 - 10"
         />
-        <small>Usa funciones de Python: sin(x), log(x), exp(x), etc.</small>
+        <label>Función g(x):</label>
+        <input
+          type="text"
+          name="g_funcion"
+          value={params.g_funcion}
+          onChange={handleChange}
+          placeholder="Ej: sqrt(10 / (x + 4))"
+        />
+        <small>Usa funciones de Python: sin(x), log(x), exp(x), sqrt(x), etc.</small>
 
-        <label>Valor del intervalo inferior (a):</label>
-        <input type="number" name="a" value={params.a} onChange={handleChange} placeholder="Ej: 0"/>
-        <label>Valor del intervalo superior (b):</label>
-        <input type="number" name="b" value={params.b} onChange={handleChange} placeholder="Ej: 1" />
+        <label>Valor inicial (x0):</label>
+        <input type="number" name="x0" value={params.x0} onChange={handleChange} placeholder="Ej: 1.5" />
         <label>Tolerancia:</label>
         <input type="text" name="tolerancia" value={params.tolerancia} onChange={handleChange} placeholder="Ej: 1e-7" />
         <label>Máximo de iteraciones (máximo 100):</label>
@@ -130,21 +132,19 @@ function Biseccion() {
               <thead>
                 <tr>
                   <th>Iteración</th>
-                  <th>a</th>
-                  <th>b</th>
-                  <th>xm</th>
-                  <th>f(xm)</th>
+                  <th>x</th>
+                  <th>g(x)</th>
+                  <th>f(x)</th>
                   <th>Error</th>
                 </tr>
               </thead>
               <tbody>
                 {resultado.tabla.map((row, idx) => (
                   <tr key={idx}>
-                    <td>{idx}</td>
-                    <td>{Number(row.a).toFixed(10)}</td>
-                    <td>{Number(row.b).toFixed(10)}</td>
-                    <td>{Number(row.c).toFixed(10)}</td>
-                    <td>{Number(row["f(c)"]).toFixed(10)}</td>
+                    <td>{row.iteracion}</td>
+                    <td>{Number(row.x).toFixed(10)}</td>
+                    <td>{Number(row["g(x)"]).toFixed(10)}</td>
+                    <td>{Number(row["f(x)"]).toFixed(10)}</td>
                     <td>{Number(row.error).toFixed(10)}</td>
                   </tr>
                 ))}
@@ -158,7 +158,7 @@ function Biseccion() {
 
       {plotData && (
         <div className="plot-container">
-          <h3>Gráfica de la función</h3>
+          <h3>Gráfica de f(x) y g(x)</h3>
           <Plot
             data={[
               {
@@ -166,10 +166,19 @@ function Biseccion() {
                 y: plotData.y,
                 type: 'scatter',
                 mode: 'lines',
-                marker: { color: 'blue' },
+                name: 'f(x)',
+                line: { color: 'blue' }
+              },
+              {
+                x: plotData.x,
+                y: plotData.gx,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'g(x)',
+                line: { color: 'red' }
               }
             ]}
-            layout={{ title: 'f(x)', xaxis: { title: 'x' }, yaxis: { title: 'f(x)' } }}
+            layout={{ title: 'Funciones f(x) y g(x)', xaxis: { title: 'x' }, yaxis: { title: 'y' } }}
             style={{ width: '100%', height: '400px' }}
           />
         </div>
@@ -178,4 +187,4 @@ function Biseccion() {
   );
 }
 
-export default Biseccion;
+export default PuntoFijo;
