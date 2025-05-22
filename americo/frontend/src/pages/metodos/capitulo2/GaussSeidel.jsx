@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Jacobi.css";
+import "./Jacobi.css"; // Reutilizamos el estilo
 
-const Jacobi = () => {
-  const [n, setN] = useState(3); // Tamaño por defecto
+const GaussSeidel = () => {
+  const [n, setN] = useState(3);
   const [matrix, setMatrix] = useState(Array(3).fill(Array(3).fill("")));
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
@@ -19,10 +19,11 @@ const Jacobi = () => {
     setMatrix(newMatrix);
   };
 
-  const handleVectorChange = (type, index, value) => {
-    const newVec = type === "b" ? [...vectorB] : [...x0];
+  const handleVectorChange = (setter, index, value) => {
+    const newVec = [...setter];
     newVec[index] = value;
-    type === "b" ? setVectorB(newVec) : setX0(newVec);
+    if (setter === vectorB) setVectorB(newVec);
+    else setX0(newVec);
   };
 
   const handleTamañoChange = (newN) => {
@@ -44,7 +45,7 @@ const Jacobi = () => {
       const parsedVectorB = vectorB.map(Number);
       const parsedX0 = x0.map(Number);
 
-      const response = await axios.post("http://127.0.0.1:8000/api/jacobi", {
+      const response = await axios.post("http://127.0.0.1:8000/api/gauss-seidel", {
         matrix: parsedMatrix,
         vector: parsedVectorB,
         x0: parsedX0,
@@ -60,7 +61,7 @@ const Jacobi = () => {
 
   return (
     <div className="jacobi-container">
-      <h2>Método de Jacobi</h2>
+      <h2>Método de Gauss-Seidel</h2>
       <form onSubmit={handleSubmit} className="form-jacobi">
         <label>
           Tamaño del sistema (2 a 7):
@@ -105,7 +106,7 @@ const Jacobi = () => {
                 type="number"
                 step="any"
                 value={val}
-                onChange={(e) => handleVectorChange("b", i, e.target.value)}
+                onChange={(e) => handleVectorChange(vectorB, i, e.target.value)}
                 required
               />
             ))}
@@ -119,7 +120,7 @@ const Jacobi = () => {
                 type="number"
                 step="any"
                 value={val}
-                onChange={(e) => handleVectorChange("x0", i, e.target.value)}
+                onChange={(e) => handleVectorChange(x0, i, e.target.value)}
                 required
               />
             ))}
@@ -159,7 +160,6 @@ const Jacobi = () => {
             <thead>
               <tr>
                 <th>Iteración</th>
-                <th>Error</th>
                 {Object.keys(resultado.tabla[0].x).map((key, i) => (
                   <th key={i}>{key}</th>
                 ))}
@@ -169,7 +169,6 @@ const Jacobi = () => {
               {resultado.tabla.map((fila, i) => (
                 <tr key={i}>
                   <td>{fila.iteracion}</td>
-                  <td>{parseFloat(fila.error).toExponential(3)}</td>
                   {Object.values(fila.x).map((val, j) => (
                     <td key={j}>{parseFloat(val).toExponential(3)}</td>
                   ))}
@@ -185,4 +184,4 @@ const Jacobi = () => {
   );
 };
 
-export default Jacobi;
+export default GaussSeidel;

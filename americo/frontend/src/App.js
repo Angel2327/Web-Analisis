@@ -10,6 +10,7 @@ import Newton from './pages/metodos/capitulo1/Newton';
 import Secante from './pages/metodos/capitulo1/Secante';
 import RaicesMultiples from './pages/metodos/capitulo1/RaicesMultiples';
 import Jacobi from "./pages/metodos/capitulo2/Jacobi";
+import GaussSeidel from "./pages/metodos/capitulo2/GaussSeidel";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/metodo/secante" element={<Secante />} />
         <Route path="/metodo/raices-multiples" element={<RaicesMultiples />} />
         <Route path="/metodo/jacobi" element={<Jacobi />} />
+        <Route path="/metodo/gauss-seidel" element={<GaussSeidel />} />
       </Routes>
     </Router>
   );

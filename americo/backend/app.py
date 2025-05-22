@@ -7,6 +7,7 @@ from metodos.capitulo1.newton import metodo_newton
 from metodos.capitulo1.secante import metodo_secante
 from metodos.capitulo1.raices_multiples import metodo_raices_multiples
 from metodos.capitulo2.jacobi import metodo_jacobi
+from metodos.capitulo2.gauss_seidel import metodo_gauss_seidel
 
 app = Flask(__name__)
 CORS(app)
@@ -97,6 +98,18 @@ def jacobi():
         return jsonify({"error": "Tolerancia o número máximo de iteraciones inválidos."}), 400
 
     resultado, codigo = metodo_jacobi(matrizA, vectorB, x0, tolerancia, max_iter)
+    return jsonify(resultado), codigo
+
+@app.route('/api/gauss-seidel', methods=['POST'])
+def gauss_seidel():
+    data = request.json
+    matriz = data.get("matrix")
+    b = data.get("vector")
+    x0 = data.get("x0")
+    tol = data.get("tolerance")
+    max_iter = data.get("iterations")
+
+    resultado, codigo = metodo_gauss_seidel(matriz, b, x0, tol, max_iter)
     return jsonify(resultado), codigo
 
 

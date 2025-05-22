@@ -1,13 +1,10 @@
-from flask import Flask, request, jsonify
 import numpy as np
-
-app = Flask(__name__)
 
 def radio_espectral(matriz):
     valores, _ = np.linalg.eig(matriz)
     return max(abs(valores))
 
-def metodo_jacobi(matrizA, vectorB, x0, tol, max_iter):
+def metodo_gauss_seidel(matrizA, vectorB, x0, tol, max_iter):
     try:
         A = np.array(matrizA, dtype=float)
         b = np.array(vectorB, dtype=float)
@@ -24,34 +21,36 @@ def metodo_jacobi(matrizA, vectorB, x0, tol, max_iter):
     if A.shape[0] > 7:
         return {"error": "El tamaño máximo permitido es 7x7."}, 400
 
-    D = np.diag(np.diag(A))
-    R = A - D
+    L = np.tril(A)
+    U = A - L
 
     try:
-        D_inv = np.linalg.inv(D)
+        L_inv = np.linalg.inv(L)
     except np.linalg.LinAlgError:
-        return {"error": "La matriz D (diagonal de A) no es invertible."}, 400
+        return {"error": "La matriz L no es invertible."}, 400
 
     tabla = []
     error = tol + 1
     iteracion = 0
     x_old = x.copy()
 
-    iter_matrix = -D_inv @ R
+    iter_matrix = -L_inv @ U
     rho = radio_espectral(iter_matrix)
 
+    converge = rho < 1
+
     while error > tol and iteracion < max_iter:
-        x_new = D_inv @ (b - R @ x_old)
-        error = np.linalg.norm((x_new - x_old) / x_new, ord=np.inf)
+        for i in range(A.shape[0]):
+            suma = sum(A[i][j] * x[j] for j in range(A.shape[1]) if j != i)
+            x[i] = (b[i] - suma) / A[i][i]
+        error = np.linalg.norm(x - x_old, ord=np.inf)
         tabla.append({
             "iteracion": iteracion + 1,
-            "x": {f"x{i+1}": x_new[i] for i in range(len(x_new))},
+            "x": {f"x{i+1}": x[i] for i in range(len(x))},
             "error": error,
         })
-        x_old = x_new
+        x_old = x.copy()
         iteracion += 1
-
-    converge = rho < 1
 
     return {
         "tabla": tabla,
