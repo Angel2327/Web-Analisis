@@ -9,11 +9,16 @@ from metodos.capitulo1.raices_multiples import metodo_raices_multiples
 from metodos.capitulo2.jacobi import metodo_jacobi
 from metodos.capitulo2.gauss_seidel import metodo_gauss_seidel
 from metodos.capitulo2.sor import metodo_sor
+from metodos.capitulo3.vandermonde import metodo_vandermonde
+from metodos.capitulo3.newton_interpolante import metodo_newton_interpolante
+from metodos.capitulo3.lagrange import metodo_lagrange
+from metodos.capitulo3.spline import metodo_spline
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/api/biseccion', methods=['POST'])
+
+@app.route("/api/biseccion", methods=["POST"])
 def biseccion():
     data = request.json
     funcion_str = data.get("funcion")
@@ -25,7 +30,8 @@ def biseccion():
     resultado, codigo = metodo_biseccion(funcion_str, a, b, tol, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/regla-falsa', methods=['POST'])
+
+@app.route("/api/regla-falsa", methods=["POST"])
 def regla_falsa():
     data = request.json
     funcion_str = data.get("funcion")
@@ -37,7 +43,8 @@ def regla_falsa():
     resultado, codigo = metodo_regla_falsa(funcion_str, a, b, tol, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/punto-fijo', methods=['POST'])
+
+@app.route("/api/punto-fijo", methods=["POST"])
 def punto_fijo():
     data = request.json
     funcion_str = data.get("funcion")
@@ -49,7 +56,8 @@ def punto_fijo():
     resultado, codigo = metodo_punto_fijo(funcion_str, g_funcion_str, x0, tol, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/newton', methods=['POST'])
+
+@app.route("/api/newton", methods=["POST"])
 def newton():
     data = request.json
     funcion_str = data.get("funcion")
@@ -60,7 +68,8 @@ def newton():
     resultado, codigo = metodo_newton(funcion_str, x0, tol, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/secante', methods=['POST'])
+
+@app.route("/api/secante", methods=["POST"])
 def secante():
     data = request.json
     funcion = data.get("funcion")
@@ -72,7 +81,8 @@ def secante():
     resultado, codigo = metodo_secante(funcion, x0, x1, tolerancia, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/raices-multiples', methods=['POST'])
+
+@app.route("/api/raices-multiples", methods=["POST"])
 def raices_multiples():
     data = request.json
     funcion = data.get("funcion")
@@ -83,12 +93,14 @@ def raices_multiples():
     resultado, codigo = metodo_raices_multiples(funcion, x0, tolerancia, max_iter)
     return jsonify(resultado), codigo
 
-@app.route('/api/jacobi', methods=['POST'])
+
+@app.route("/api/jacobi", methods=["POST"])
 def jacobi():
     data = request.json
     matrizA = data.get("matrix")
     vectorB = data.get("vector")
     x0 = data.get("x0")
+
     tolerancia = data.get("tolerance")
     max_iter = data.get("iterations")
     norma = data.get("norm")
@@ -97,12 +109,16 @@ def jacobi():
         tolerancia = float(tolerancia)
         max_iter = int(max_iter)
     except Exception:
-        return jsonify({"error": "Tolerancia o número máximo de iteraciones inválidos."}), 400
+        return (
+            jsonify({"error": "Tolerancia o número máximo de iteraciones inválidos."}),
+            400,
+        )
 
     resultado, codigo = metodo_jacobi(matrizA, vectorB, x0, tolerancia, max_iter, norma)
     return jsonify(resultado), codigo
 
-@app.route('/api/gauss-seidel', methods=['POST'])
+
+@app.route("/api/gauss-seidel", methods=["POST"])
 def gauss_seidel():
     data = request.json
     matrizA = data.get("matrix")
@@ -114,6 +130,7 @@ def gauss_seidel():
 
     resultado = metodo_gauss_seidel(matrizA, vectorB, x0, tolerancia, max_iter, norma)
     return jsonify(resultado), 200
+
 
 @app.route("/api/sor", methods=["POST"])
 def sor():
@@ -131,5 +148,87 @@ def sor():
         return jsonify({"error": resultado[0]["error"]}), resultado[1]
     return jsonify(resultado)
 
-if __name__ == '__main__':
+
+@app.route("/api/vandermonde", methods=["POST"])
+def vandermonde():
+    try:
+        data = request.json
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+
+        if not xPoints or not yPoints:
+            return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
+
+        resultado = metodo_vandermonde(xPoints, yPoints)
+        return jsonify(resultado)
+
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error interno en el servidor"}), 500
+
+
+@app.route("/api/newton-interpolante", methods=["POST"])
+def newton_interpolante():
+    try:
+        data = request.json
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+
+        if not xPoints or not yPoints:
+            return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
+
+        resultado = metodo_newton_interpolante(xPoints, yPoints)
+        return jsonify(resultado)
+
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error interno en el servidor"}), 500
+
+
+@app.route("/api/lagrange", methods=["POST"])
+def lagrange():
+    try:
+        data = request.json
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+
+        if not xPoints or not yPoints:
+            return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
+
+        resultado = metodo_lagrange(xPoints, yPoints)
+        return jsonify(resultado)
+
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception as e:
+        return jsonify({"message": "Error interno en el servidor"}), 500
+
+
+@app.route("/api/spline", methods=["POST"])
+def spline():
+    try:
+        data = request.json
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+        tipo = data.get("tipo", "lineal")
+
+        if not xPoints or not yPoints:
+            return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
+
+        resultado, codigo = metodo_spline(xPoints, yPoints, tipo)
+
+        if codigo != 200:
+            return jsonify(resultado), codigo
+
+        return jsonify(resultado), 200
+
+    except ValueError as e:
+        return jsonify({"message": str(e)}), 400
+    except Exception:
+        return jsonify({"message": "Error interno en el servidor"}), 500
+
+
+if __name__ == "__main__":
     app.run(port=8000)

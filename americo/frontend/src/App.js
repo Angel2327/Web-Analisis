@@ -11,7 +11,11 @@ import Secante from './pages/metodos/capitulo1/Secante';
 import RaicesMultiples from './pages/metodos/capitulo1/RaicesMultiples';
 import Jacobi from "./pages/metodos/capitulo2/Jacobi";
 import GaussSeidel from "./pages/metodos/capitulo2/GaussSeidel";
-import SOR from "./pages/metodos/capitulo2/sor";
+import SOR from "./pages/metodos/capitulo2/Sor";
+import Vandermonde from "./pages/metodos/capitulo3/Vandermonde";
+import NewtonInterpolante from "./pages/metodos/capitulo3/NewtonInterpolante";
+import Lagrange from "./pages/metodos/capitulo3/Lagrange";
+import Spline from "./pages/metodos/capitulo3/Spline";
 
 function App() {
   return (
@@ -31,6 +35,10 @@ function App() {
         <Route path="/metodo/jacobi" element={<Jacobi />} />
         <Route path="/metodo/gauss-seidel" element={<GaussSeidel />} />
         <Route path="/metodo/sor" element={<SOR />} />
+        <Route path="/metodo/vandermonde" element={<Vandermonde />} />
+        <Route path="/metodo/newton-interpolante" element={<NewtonInterpolante />} />
+        <Route path="/metodo/lagrange" element={<Lagrange />} />
+        <Route path="/metodo/spline" element={<Spline />} />
       </Routes>
     </Router>
   );
