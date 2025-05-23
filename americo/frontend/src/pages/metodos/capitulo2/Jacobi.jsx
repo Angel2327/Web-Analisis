@@ -4,7 +4,7 @@ import "./Jacobi.css";
 
 const Jacobi = () => {
   const [n, setN] = useState(3);
-  const [matrix, setMatrix] = useState(Array(3).fill(Array(3).fill("")));
+  const [matrix, setMatrix] = useState(Array(3).fill().map(() => Array(3).fill("")));
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
@@ -46,9 +46,21 @@ const Jacobi = () => {
     setResultado(null);
 
     try {
-      const parsedMatrix = matrix.map(row => row.map(Number));
+      // Validación de campos numéricos
+      const parsedMatrix = matrix.map((row) => row.map(Number));
       const parsedVectorB = vectorB.map(Number);
       const parsedX0 = x0.map(Number);
+
+      if (
+        parsedMatrix.some(row => row.some(val => isNaN(val))) ||
+        parsedVectorB.some(val => isNaN(val)) ||
+        parsedX0.some(val => isNaN(val)) ||
+        isNaN(parseFloat(tolerance)) ||
+        isNaN(parseInt(iterations))
+      ) {
+        setError("Todos los campos deben contener valores numéricos válidos.");
+        return;
+      }
 
       const response = await axios.post("http://127.0.0.1:8000/api/jacobi", {
         matrix: parsedMatrix,
@@ -157,10 +169,10 @@ const Jacobi = () => {
         <label>
           Norma:
           <select value={norm} onChange={handleNormChange}>
-            <option value="1"> 1 </option>
-            <option value="2"> 2 </option>
-            <option value="3"> 3 </option>
-            <option value="inf"> Infinita </option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="inf">Infinita</option>
           </select>
         </label>
 
@@ -173,23 +185,25 @@ const Jacobi = () => {
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
           <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
+          <p><strong>Radio espectral:</strong> {resultado.radio_espectral !== undefined ? resultado.radio_espectral.toFixed(6) : "N/A"}</p>
           <table>
             <thead>
               <tr>
                 <th>Iteración</th>
                 <th>Error</th>
-                {Object.keys(resultado.tabla[0].x).map((key, i) => (
-                  <th key={i}>{key}</th>
-                ))}
+                {resultado.tabla?.length > 0 && resultado.tabla[0].x &&
+                  Object.keys(resultado.tabla[0].x).map((key, i) => (
+                    <th key={i}>{key}</th>
+                  ))
+                }
               </tr>
             </thead>
             <tbody>
-              {resultado.tabla.map((fila, i) => (
+              {resultado.tabla?.map((fila, i) => (
                 <tr key={i}>
                   <td>{fila.iteracion}</td>
                   <td>{parseFloat(fila.error).toExponential(3)}</td>
-                  {Object.values(fila.x).map((val, j) => (
+                  {Object.values(fila.x || {}).map((val, j) => (
                     <td key={j}>{parseFloat(val).toExponential(3)}</td>
                   ))}
                 </tr>

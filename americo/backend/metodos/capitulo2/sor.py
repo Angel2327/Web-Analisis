@@ -7,13 +7,14 @@ def radio_espectral(matriz):
     valores, _ = np.linalg.eig(matriz)
     return max(abs(valores))
 
-def metodo_gauss_seidel(matrizA, vectorB, x0, tol, max_iter, norma):
+def metodo_sor(matrizA, vectorB, x0, tol, max_iter, norma, omega):
     try:
         A = np.array(matrizA, dtype=float)
         b = np.array(vectorB, dtype=float)
         x = np.array(x0, dtype=float)
         tol = float(tol)
         max_iter = int(max_iter)
+        omega = float(omega)
     except Exception:
         return {"error": "Error al interpretar los datos. Verifique que todos sean numéricos."}, 400
 
@@ -23,6 +24,8 @@ def metodo_gauss_seidel(matrizA, vectorB, x0, tol, max_iter, norma):
         return {"error": "El tamaño de b y x0 debe coincidir con el de la matriz A."}, 400
     if A.shape[0] > 7:
         return {"error": "El tamaño máximo permitido es 7x7."}, 400
+    if not (0 < omega < 2):
+        return {"error": "El parámetro omega debe estar entre 0 y 2."}, 400
 
     n = A.shape[0]
     tabla = []
@@ -31,13 +34,16 @@ def metodo_gauss_seidel(matrizA, vectorB, x0, tol, max_iter, norma):
     x_old = x.copy()
 
     # Para radio espectral
-    L = np.tril(A)
-    U = A - L
+    D = np.diag(np.diag(A))
+    L = -np.tril(A, -1)
+    U = -np.triu(A, 1)
+
     try:
-        L_inv = np.linalg.inv(L)
+        D_omegaL_inv = np.linalg.inv(D - omega * L)
     except np.linalg.LinAlgError:
-        return {"error": "La matriz L (triangular inferior de A) no es invertible."}, 400
-    iter_matrix = -L_inv @ U
+        return {"error": "La matriz (D - omega*L) no es invertible."}, 400
+
+    iter_matrix = D_omegaL_inv @ ((1 - omega) * D + omega * U)
     rho = radio_espectral(iter_matrix)
 
     while error > tol and iteracion < max_iter:
@@ -45,7 +51,7 @@ def metodo_gauss_seidel(matrizA, vectorB, x0, tol, max_iter, norma):
         for i in range(n):
             sum1 = sum(A[i][j] * x_new[j] for j in range(i))
             sum2 = sum(A[i][j] * x_old[j] for j in range(i + 1, n))
-            x_new[i] = (b[i] - sum1 - sum2) / A[i][i]
+            x_new[i] = (1 - omega) * x_old[i] + (omega / A[i][i]) * (b[i] - sum1 - sum2)
 
         if norma == "1":
             error = np.linalg.norm((x_new - x_old) / x_new, ord=1)

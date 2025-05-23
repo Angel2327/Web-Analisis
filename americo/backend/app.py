@@ -8,6 +8,7 @@ from metodos.capitulo1.secante import metodo_secante
 from metodos.capitulo1.raices_multiples import metodo_raices_multiples
 from metodos.capitulo2.jacobi import metodo_jacobi
 from metodos.capitulo2.gauss_seidel import metodo_gauss_seidel
+from metodos.capitulo2.sor import metodo_sor
 
 app = Flask(__name__)
 CORS(app)
@@ -114,6 +115,21 @@ def gauss_seidel():
     resultado = metodo_gauss_seidel(matrizA, vectorB, x0, tolerancia, max_iter, norma)
     return jsonify(resultado), 200
 
+@app.route("/api/sor", methods=["POST"])
+def sor():
+    data = request.get_json()
+    matriz = data.get("matrix")
+    vector = data.get("vector")
+    x0 = data.get("x0")
+    tolerance = data.get("tolerance")
+    iterations = data.get("iterations")
+    norm = data.get("norm")
+    omega = data.get("omega")
+
+    resultado = metodo_sor(matriz, vector, x0, tolerance, iterations, norm, omega)
+    if isinstance(resultado, tuple):
+        return jsonify({"error": resultado[0]["error"]}), resultado[1]
+    return jsonify(resultado)
 
 if __name__ == '__main__':
     app.run(port=8000)

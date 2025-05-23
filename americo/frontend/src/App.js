@@ -11,6 +11,7 @@ import Secante from './pages/metodos/capitulo1/Secante';
 import RaicesMultiples from './pages/metodos/capitulo1/RaicesMultiples';
 import Jacobi from "./pages/metodos/capitulo2/Jacobi";
 import GaussSeidel from "./pages/metodos/capitulo2/GaussSeidel";
+import SOR from "./pages/metodos/capitulo2/sor";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/metodo/raices-multiples" element={<RaicesMultiples />} />
         <Route path="/metodo/jacobi" element={<Jacobi />} />
         <Route path="/metodo/gauss-seidel" element={<GaussSeidel />} />
+        <Route path="/metodo/sor" element={<SOR />} />
       </Routes>
     </Router>
   );

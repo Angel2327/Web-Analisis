@@ -33,7 +33,7 @@ const MetodosPage = () => {
             <ul className="dropdown-list">
               <li><a href="/metodo/jacobi">Jacobi</a></li>
               <li><a href="/metodo/gauss-seidel">Gauss-Seidel</a></li>
-              <li>SOR</li>
+              <li><a href="/metodo/sor">SOR</a></li>
             </ul>
           )}
         </div>
