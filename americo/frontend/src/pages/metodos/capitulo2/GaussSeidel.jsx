@@ -35,7 +35,11 @@ const GaussSeidel = () => {
     const size = parseInt(newN);
     if (isNaN(size) || size < 2 || size > 7) return;
     setN(size);
-    setMatrix(Array(size).fill().map(() => Array(size).fill("")));
+    setMatrix(
+      Array(size)
+        .fill()
+        .map(() => Array(size).fill(""))
+    );
     setVectorB(Array(size).fill(""));
     setX0(Array(size).fill(""));
   };
@@ -45,7 +49,9 @@ const GaussSeidel = () => {
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         if (matrix[i][j] === "" || isNaN(matrix[i][j])) {
-          setError(`Valor inválido en la matriz A en la posición [${i + 1}][${j + 1}]`);
+          setError(
+            `Valor inválido en la matriz A en la posición [${i + 1}][${j + 1}]`
+          );
           return false;
         }
       }
@@ -62,7 +68,9 @@ const GaussSeidel = () => {
     // Validar vector x0
     for (let i = 0; i < n; i++) {
       if (x0[i] === "" || isNaN(x0[i])) {
-        setError(`Valor inválido en el vector inicial x0 en la posición [${i + 1}]`);
+        setError(
+          `Valor inválido en el vector inicial x0 en la posición [${i + 1}]`
+        );
         return false;
       }
     }
@@ -92,22 +100,27 @@ const GaussSeidel = () => {
     if (!validarEntradas()) return;
 
     try {
-      const parsedMatrix = matrix.map(row => row.map(Number));
+      const parsedMatrix = matrix.map((row) => row.map(Number));
       const parsedVectorB = vectorB.map(Number);
       const parsedX0 = x0.map(Number);
 
-      const response = await axios.post("http://127.0.0.1:8000/api/gauss-seidel", {
-        matrix: parsedMatrix,
-        vector: parsedVectorB,
-        x0: parsedX0,
-        tolerance,
-        iterations,
-        norm,
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/gauss-seidel",
+        {
+          matrix: parsedMatrix,
+          vector: parsedVectorB,
+          x0: parsedX0,
+          tolerance,
+          iterations,
+          norm,
+        }
+      );
 
       setResultado(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al conectar con el servidor.");
+      setError(
+        err.response?.data?.error || "Error al conectar con el servidor."
+      );
     }
   };
 
@@ -139,7 +152,9 @@ const GaussSeidel = () => {
                           type="number"
                           step="any"
                           value={val}
-                          onChange={(e) => handleMatrixChange(i, j, e.target.value)}
+                          onChange={(e) =>
+                            handleMatrixChange(i, j, e.target.value)
+                          }
                           required
                         />
                       </td>
@@ -218,8 +233,13 @@ const GaussSeidel = () => {
       {resultado && (
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
-          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral.toFixed(6)}</p>
+          <p>
+            <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
+          </p>
+          <p>
+            <strong>Radio espectral:</strong>{" "}
+            {resultado.radio_espectral.toFixed(6)}
+          </p>
           <table>
             <thead>
               <tr>

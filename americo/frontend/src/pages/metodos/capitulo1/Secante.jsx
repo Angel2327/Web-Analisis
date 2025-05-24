@@ -30,7 +30,9 @@ const Secante = () => {
       setTabla(response.data.tabla);
       setGrafica(response.data.grafica);
     } catch (err) {
-      setError(err.response?.data?.error || "Error en la solicitud al servidor.");
+      setError(
+        err.response?.data?.error || "Error en la solicitud al servidor."
+      );
     }
   };
 

@@ -4,7 +4,11 @@ import "./Jacobi.css";
 
 const SOR = () => {
   const [n, setN] = useState(3);
-  const [matrix, setMatrix] = useState(Array(3).fill().map(() => Array(3).fill("")));
+  const [matrix, setMatrix] = useState(
+    Array(3)
+      .fill()
+      .map(() => Array(3).fill(""))
+  );
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
@@ -36,7 +40,11 @@ const SOR = () => {
     const size = parseInt(newN);
     if (isNaN(size) || size < 2 || size > 7) return;
     setN(size);
-    setMatrix(Array(size).fill().map(() => Array(size).fill("")));
+    setMatrix(
+      Array(size)
+        .fill()
+        .map(() => Array(size).fill(""))
+    );
     setVectorB(Array(size).fill(""));
     setX0(Array(size).fill(""));
   };
@@ -47,13 +55,15 @@ const SOR = () => {
     setResultado(null);
 
     try {
-      const parsedMatrix = matrix.map(row => row.map(Number));
+      const parsedMatrix = matrix.map((row) => row.map(Number));
       const parsedVectorB = vectorB.map(Number);
       const parsedX0 = x0.map(Number);
       const parsedOmega = parseFloat(omega);
 
       if (isNaN(parsedOmega) || parsedOmega <= 0 || parsedOmega >= 2) {
-        setError("El valor de omega debe ser un número entre 0 y 2 (excluyendo los extremos).");
+        setError(
+          "El valor de omega debe ser un número entre 0 y 2 (excluyendo los extremos)."
+        );
         return;
       }
 
@@ -69,7 +79,9 @@ const SOR = () => {
 
       setResultado(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al conectar con el servidor.");
+      setError(
+        err.response?.data?.error || "Error al conectar con el servidor."
+      );
     }
   };
 
@@ -101,7 +113,9 @@ const SOR = () => {
                           type="number"
                           step="any"
                           value={val}
-                          onChange={(e) => handleMatrixChange(i, j, e.target.value)}
+                          onChange={(e) =>
+                            handleMatrixChange(i, j, e.target.value)
+                          }
                           required
                         />
                       </td>
@@ -193,18 +207,25 @@ const SOR = () => {
       {resultado && (
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
-          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral !== undefined ? resultado.radio_espectral.toFixed(6) : "N/A"}</p>
+          <p>
+            <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
+          </p>
+          <p>
+            <strong>Radio espectral:</strong>{" "}
+            {resultado.radio_espectral !== undefined
+              ? resultado.radio_espectral.toFixed(6)
+              : "N/A"}
+          </p>
           <table>
             <thead>
               <tr>
                 <th>Iteración</th>
                 <th>Error</th>
-                {resultado.tabla?.length > 0 && resultado.tabla[0].x &&
+                {resultado.tabla?.length > 0 &&
+                  resultado.tabla[0].x &&
                   Object.keys(resultado.tabla[0].x).map((key, i) => (
                     <th key={i}>{key}</th>
-                  ))
-                }
+                  ))}
               </tr>
             </thead>
             <tbody>

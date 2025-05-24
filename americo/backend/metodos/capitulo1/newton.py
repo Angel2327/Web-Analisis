@@ -1,8 +1,9 @@
 import sympy as sp
 import numpy as np
 
+
 def metodo_newton(funcion_str, x0, tol, max_iter):
-    x = sp.symbols('x')
+    x = sp.symbols("x")
     try:
         f_expr = sp.sympify(funcion_str)
         df_expr = sp.diff(f_expr, x)
@@ -36,13 +37,15 @@ def metodo_newton(funcion_str, x0, tol, max_iter):
         x_new = x_old - fx / dfx
         error = abs(x_new - x_old)
 
-        tabla.append({
-            "iteracion": iteracion + 1,
-            "x": x_new,
-            "fx": fx,
-            "fx_derivada": dfx,
-            "error": error,
-        })
+        tabla.append(
+            {
+                "iteracion": iteracion + 1,
+                "x": x_new,
+                "fx": fx,
+                "fx_derivada": dfx,
+                "error": error,
+            }
+        )
 
         x_old = x_new
         iteracion += 1

@@ -1,8 +1,9 @@
 import sympy as sp
 import numpy as np
 
+
 def metodo_regla_falsa(funcion_str, a, b, tol, max_iter):
-    x = sp.symbols('x')
+    x = sp.symbols("x")
     try:
         f_expr = sp.sympify(funcion_str)
         f = sp.lambdify(x, f_expr, "numpy")
@@ -28,11 +29,15 @@ def metodo_regla_falsa(funcion_str, a, b, tol, max_iter):
         if f(a) * f(b) >= 0:
             return {"error": "La función no cambia de signo en el intervalo."}, 400
     except Exception:
-        return {"error": "No se pudo evaluar la función en los extremos del intervalo."}, 400
+        return {
+            "error": "No se pudo evaluar la función en los extremos del intervalo."
+        }, 400
 
     tabla = []
     iteracion = 0
-    error = tol + 1  # Inicializa con un valor mayor a la tolerancia
+
+    error = tol + 1
+    c_old = a
 
     while error > tol and iteracion < max_iter:
         fa = f(a)
@@ -40,36 +45,39 @@ def metodo_regla_falsa(funcion_str, a, b, tol, max_iter):
         c = (a * fb - b * fa) / (fb - fa)
         fc = f(c)
 
-        tabla.append({
-            "iteracion": iteracion + 1,
-            "a": a,
-            "b": b,
-            "c": c,
-            "f(c)": fc,
-            "error": error
-        })
+        if iteracion == 0:
+            error = abs(fc)
+        else:
+            error = abs((c - c_old) / c)
+
+        tabla.append(
+            {
+                "iteracion": iteracion + 1,
+                "a": a,
+                "b": b,
+                "c": c,
+                "f(c)": fc,
+                "error": error,
+            }
+        )
 
         if fa * fc < 0:
             b = c
         else:
             a = c
 
-        error = abs(f(c))
+        c_old = c
         iteracion += 1
 
-    # Datos para gráfica
     try:
         x_vals = np.linspace(a - 1, b + 1, 400)
         y_vals = f(x_vals)
-        grafica = {
-            "x": x_vals.tolist(),
-            "y": y_vals.tolist()
-        }
+        grafica = {"x": x_vals.tolist(), "y": y_vals.tolist()}
     except Exception as e:
         grafica = {
             "x": [],
             "y": [],
-            "error": f"No se pudo generar la gráfica: {str(e)}"
+            "error": f"No se pudo generar la gráfica: {str(e)}",
         }
 
     return {"tabla": tabla, "grafica": grafica}, 200

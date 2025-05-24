@@ -1,8 +1,9 @@
 import sympy as sp
 import numpy as np
 
+
 def metodo_secante(funcion_str, x0, x1, tol, max_iter):
-    x = sp.symbols('x')
+    x = sp.symbols("x")
     try:
         f_expr = sp.sympify(funcion_str)
         f = sp.lambdify(x, f_expr, "numpy")
@@ -34,14 +35,16 @@ def metodo_secante(funcion_str, x0, x1, tol, max_iter):
         x2 = x1 - fx1 * (x1 - x0) / (fx1 - fx0)
         error = abs(x2 - x1)
 
-        tabla.append({
-            "iteracion": iteracion + 1,
-            "x0": x0,
-            "x1": x1,
-            "fx0": fx0,
-            "fx1": fx1,
-            "error": error,
-        })
+        tabla.append(
+            {
+                "iteracion": iteracion + 1,
+                "x0": x0,
+                "x1": x1,
+                "fx0": fx0,
+                "fx1": fx1,
+                "error": error,
+            }
+        )
 
         x0, x1 = x1, x2
         iteracion += 1

@@ -19,16 +19,21 @@ const RaicesMultiples = () => {
     setGrafica(null);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/raices-multiples", {
-        funcion,
-        x0,
-        tolerancia,
-        max_iter: maxIter,
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/raices-multiples",
+        {
+          funcion,
+          x0,
+          tolerancia,
+          max_iter: maxIter,
+        }
+      );
       setTabla(response.data.tabla);
       setGrafica(response.data.grafica);
     } catch (err) {
-      setError(err.response?.data?.error || "Error en la solicitud al servidor.");
+      setError(
+        err.response?.data?.error || "Error en la solicitud al servidor."
+      );
     }
   };
 

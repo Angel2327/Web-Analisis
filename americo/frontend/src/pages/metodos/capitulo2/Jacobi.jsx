@@ -4,7 +4,11 @@ import "./Jacobi.css";
 
 const Jacobi = () => {
   const [n, setN] = useState(3);
-  const [matrix, setMatrix] = useState(Array(3).fill().map(() => Array(3).fill("")));
+  const [matrix, setMatrix] = useState(
+    Array(3)
+      .fill()
+      .map(() => Array(3).fill(""))
+  );
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
@@ -35,7 +39,11 @@ const Jacobi = () => {
     const size = parseInt(newN);
     if (isNaN(size) || size < 2 || size > 7) return;
     setN(size);
-    setMatrix(Array(size).fill().map(() => Array(size).fill("")));
+    setMatrix(
+      Array(size)
+        .fill()
+        .map(() => Array(size).fill(""))
+    );
     setVectorB(Array(size).fill(""));
     setX0(Array(size).fill(""));
   };
@@ -52,9 +60,9 @@ const Jacobi = () => {
       const parsedX0 = x0.map(Number);
 
       if (
-        parsedMatrix.some(row => row.some(val => isNaN(val))) ||
-        parsedVectorB.some(val => isNaN(val)) ||
-        parsedX0.some(val => isNaN(val)) ||
+        parsedMatrix.some((row) => row.some((val) => isNaN(val))) ||
+        parsedVectorB.some((val) => isNaN(val)) ||
+        parsedX0.some((val) => isNaN(val)) ||
         isNaN(parseFloat(tolerance)) ||
         isNaN(parseInt(iterations))
       ) {
@@ -73,7 +81,9 @@ const Jacobi = () => {
 
       setResultado(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || "Error al conectar con el servidor.");
+      setError(
+        err.response?.data?.error || "Error al conectar con el servidor."
+      );
     }
   };
 
@@ -105,7 +115,9 @@ const Jacobi = () => {
                           type="number"
                           step="any"
                           value={val}
-                          onChange={(e) => handleMatrixChange(i, j, e.target.value)}
+                          onChange={(e) =>
+                            handleMatrixChange(i, j, e.target.value)
+                          }
                           required
                         />
                       </td>
@@ -184,18 +196,25 @@ const Jacobi = () => {
       {resultado && (
         <div className="resultado-jacobi">
           <h3>Resultado:</h3>
-          <p><strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}</p>
-          <p><strong>Radio espectral:</strong> {resultado.radio_espectral !== undefined ? resultado.radio_espectral.toFixed(6) : "N/A"}</p>
+          <p>
+            <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
+          </p>
+          <p>
+            <strong>Radio espectral:</strong>{" "}
+            {resultado.radio_espectral !== undefined
+              ? resultado.radio_espectral.toFixed(6)
+              : "N/A"}
+          </p>
           <table>
             <thead>
               <tr>
                 <th>Iteración</th>
                 <th>Error</th>
-                {resultado.tabla?.length > 0 && resultado.tabla[0].x &&
+                {resultado.tabla?.length > 0 &&
+                  resultado.tabla[0].x &&
                   Object.keys(resultado.tabla[0].x).map((key, i) => (
                     <th key={i}>{key}</th>
-                  ))
-                }
+                  ))}
               </tr>
             </thead>
             <tbody>

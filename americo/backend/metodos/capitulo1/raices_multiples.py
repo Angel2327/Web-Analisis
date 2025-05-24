@@ -1,8 +1,9 @@
 import sympy as sp
 import numpy as np
 
+
 def metodo_raices_multiples(funcion_str, x0, tol, max_iter):
-    x = sp.symbols('x')
+    x = sp.symbols("x")
     try:
         f_expr = sp.sympify(funcion_str)
         f = sp.lambdify(x, f_expr, "numpy")
@@ -32,19 +33,23 @@ def metodo_raices_multiples(funcion_str, x0, tol, max_iter):
 
         denominador = fx1**2 - fx * fx2
         if denominador == 0:
-            return {"error": "División por cero en la fórmula de raíces múltiples."}, 400
+            return {
+                "error": "División por cero en la fórmula de raíces múltiples."
+            }, 400
 
         x1 = x0 - (fx * fx1) / denominador
         error = abs(x1 - x0)
 
-        tabla.append({
-            "iteracion": iteracion + 1,
-            "x": x0,
-            "fx": fx,
-            "fx1": fx1,
-            "fx2": fx2,
-            "error": error,
-        })
+        tabla.append(
+            {
+                "iteracion": iteracion + 1,
+                "x": x0,
+                "fx": fx,
+                "fx1": fx1,
+                "fx2": fx2,
+                "error": error,
+            }
+        )
 
         x0 = x1
         iteracion += 1
