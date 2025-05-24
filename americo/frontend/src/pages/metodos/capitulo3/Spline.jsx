@@ -58,10 +58,8 @@ export default function Spline() {
       if (response.data.error) {
         setError(response.data.error);
         setSplines(null);
-        console.log("Datos recibidos del backend:", response.data);
       } else {
         setSplines(response.data);
-        console.log("Datos recibidos del backend:", response.data);
         setError("");
       }
     } catch (err) {
@@ -109,11 +107,7 @@ export default function Spline() {
         }}
       >
         {points.map((point, idx) => (
-          <div
-            key={idx}
-            className="point-row"
-            style={{ marginBottom: "0.5rem" }}
-          >
+          <div key={idx} style={{ marginBottom: "0.5rem" }}>
             <input
               type="number"
               placeholder={`x${idx}`}
@@ -136,11 +130,7 @@ export default function Spline() {
         </button>
       </form>
 
-      {error && (
-        <p className="error" style={{ color: "red", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
+      {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
 
       {splines && (
         <>
@@ -148,69 +138,106 @@ export default function Spline() {
             {tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico"}
           </h3>
 
-          {/* Tabla de Coeficientes */}
-          <h4 style={{ textAlign: "center" }}>Tabla de Coeficientes</h4>
-          <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={{ border: "1px solid black", padding: "0.5rem" }}>
-                  i
-                </th>
-                <th style={{ border: "1px solid black", padding: "0.5rem" }}>
-                  Coeficiente 1
-                </th>
-                <th style={{ border: "1px solid black", padding: "0.5rem" }}>
-                  Coeficiente 2
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {splines?.coeficientes?.map((item) => (
-                <tr key={item.i}>
-                  <td style={{ border: "1px solid black", padding: "0.5rem" }}>
-                    {item.i}
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "0.5rem" }}>
-                    {item.coef1}
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "0.5rem" }}>
-                    {item.coef2}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* Mostrar para Spline Lineal */}
+          {tipo === "lineal" && (
+            <>
+              <h4 style={{ textAlign: "center" }}>Tabla de Coeficientes</h4>
+              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={cellStyle}>i</th>
+                    <th style={cellStyle}>Coeficiente 1</th>
+                    <th style={cellStyle}>Coeficiente 2</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr key={item.i}>
+                      <td style={cellStyle}>{item.i}</td>
+                      <td style={cellStyle}>{item.coef1}</td>
+                      <td style={cellStyle}>{item.coef2}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          {/* Tabla de Rastreadores */}
-          <h4 style={{ textAlign: "center", marginTop: "1rem" }}>
-            Tabla de Rastreadores
-          </h4>
-          <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-            <thead>
-              <tr>
-                <th style={{ border: "1px solid black", padding: "0.5rem" }}>
-                  i
-                </th>
-                <th style={{ border: "1px solid black", padding: "0.5rem" }}>
-                  Rastreadores
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {splines?.coeficientes?.map((item) => (
-                <tr key={item.i}>
-                  <td style={{ border: "1px solid black", padding: "0.5rem" }}>
-                    {item.i}
-                  </td>
-                  <td style={{ border: "1px solid black", padding: "0.5rem" }}>
-                    {item.formato}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              <h4 style={{ textAlign: "center", marginTop: "1rem" }}>
+                Tabla de Rastreadores
+              </h4>
+              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={cellStyle}>i</th>
+                    <th style={cellStyle}>Rastreadores</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr key={item.i}>
+                      <td style={cellStyle}>{item.i}</td>
+                      <td style={cellStyle}>{item.formato}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+
+          {/* Mostrar para Spline Cúbico */}
+          {tipo === "cubico" && (
+            <>
+              <h4 style={{ textAlign: "center" }}>Tabla de Coeficientes</h4>
+              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={cellStyle}>i</th>
+                    <th style={cellStyle}>Coeficiente 1</th>
+                    <th style={cellStyle}>Coeficiente 2</th>
+                    <th style={cellStyle}>Coeficiente 3</th>
+                    <th style={cellStyle}>Coeficiente 4</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr key={item.i}>
+                      <td style={cellStyle}>{item.i}</td>
+                      <td style={cellStyle}>{item.coef1}</td>
+                      <td style={cellStyle}>{item.coef2}</td>
+                      <td style={cellStyle}>{item.coef3}</td>
+                      <td style={cellStyle}>{item.coef4}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <h4 style={{ textAlign: "center", marginTop: "1rem" }}>
+                Tabla de Rastreadores
+              </h4>
+              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={cellStyle}>i</th>
+                    <th style={cellStyle}>Rastreadores</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr key={item.i}>
+                      <td style={cellStyle}>{item.i}</td>
+                      <td style={cellStyle}>{item.formato}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
         </>
       )}
     </div>
   );
 }
+
+const cellStyle = {
+  border: "1px solid black",
+  padding: "0.5rem",
+};
