@@ -1,5 +1,5 @@
 .navbar {
-  background-color: #00bcd4; /* Azul aguamarina */
+  background-color: #059669;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -33,5 +33,5 @@
 }
 
 .navbar-button:hover {
-  background-color: #008c9e;
+  background-color: #059669;
 }

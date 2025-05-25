@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import sympy as sp
 from metodos.capitulo1.biseccion import metodo_biseccion
 from metodos.capitulo1.regla_falsa import metodo_regla_falsa
 from metodos.capitulo1.punto_fijo import metodo_punto_fijo
@@ -16,6 +17,23 @@ from metodos.capitulo3.spline import metodo_spline
 
 app = Flask(__name__)
 CORS(app)
+
+
+@app.route("/api/derivada", methods=["POST"])
+def derivada():
+    data = request.json
+    funcion_str = data.get("funcion", "")
+    x = sp.symbols("x")
+    try:
+        f_expr = sp.sympify(funcion_str)
+        f_deriv = sp.diff(f_expr, x)
+        if f_deriv == 0:
+            mensaje = "Esta función no tiene derivada."
+        else:
+            mensaje = f"{str(f_deriv)}"
+    except Exception:
+        mensaje = "No se pudo calcular la derivada."
+    return jsonify({"derivada_mensaje": mensaje})
 
 
 @app.route("/api/biseccion", methods=["POST"])

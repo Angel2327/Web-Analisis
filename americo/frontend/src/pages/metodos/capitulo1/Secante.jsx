@@ -106,7 +106,7 @@ function Secante() {
               name="x0"
               value={params.x0}
               onChange={handleChange}
-              placeholder="Ej: 1"
+              placeholder="Ej: 0.5"
             />
             <label>Valor inicial x1:</label>
             <input
@@ -114,7 +114,7 @@ function Secante() {
               name="x1"
               value={params.x1}
               onChange={handleChange}
-              placeholder="Ej: 2"
+              placeholder="Ej: 1"
             />
             <label>Tolerancia:</label>
             <input

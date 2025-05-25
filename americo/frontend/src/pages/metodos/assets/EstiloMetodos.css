@@ -195,9 +195,10 @@ th {
 
 /* Mensaje de error */
 .error {
-  margin-top: 15px;
-  color: #dc2626;
-  font-weight: 600;
+  text-align: center;
+  color: red;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 /* Gráfica */
@@ -258,3 +259,73 @@ th {
   padding: 6px 8px;
 }
 
+.label-con-icono {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-icon {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #f9f9f9;
+  color: #333;
+  text-align: left;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  position: absolute;
+  z-index: 10;
+  top: -5px;
+  left: 20px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: auto; /* permite interacción */
+}
+
+.tooltip-icon:hover .tooltip-text,
+.tooltip-text:hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-explicacion {
+  margin-bottom: 6px;
+}
+
+.tooltip-ejemplo {
+  font-style: italic;
+  color: #007bff;
+  margin-top: 4px;
+}
+
+.tooltip-ejemplo code {
+  background-color: #eee;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
