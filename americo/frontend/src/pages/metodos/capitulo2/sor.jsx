@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Jacobi.css";
+import "../assets/EstiloMetodos.css";
 
 const SOR = () => {
   const [n, setN] = useState(3);
@@ -32,9 +32,7 @@ const SOR = () => {
     else setX0(newVec);
   };
 
-  const handleNormChange = (e) => {
-    setNorm(e.target.value);
-  };
+  const handleNormChange = (e) => setNorm(e.target.value);
 
   const handleTamañoChange = (newN) => {
     const size = parseInt(newN);
@@ -86,162 +84,192 @@ const SOR = () => {
   };
 
   return (
-    <div className="jacobi-container">
-      <h2>Método SOR (Successive Over-Relaxation)</h2>
-      <form onSubmit={handleSubmit} className="form-jacobi">
-        <label>
-          Tamaño del sistema (2 a 7):
-          <input
-            type="number"
-            min="2"
-            max="7"
-            value={n}
-            onChange={(e) => handleTamañoChange(e.target.value)}
-          />
-        </label>
+    <div className="biseccion-page">
+      <h1 class="titulo-principal">Método SOR (Successive Over-Relaxation)</h1>
+      <div className="top-section">
+        <form onSubmit={handleSubmit} className="formulario-contenedor-cap2">
+          <div className="formulario">
+            <label>
+              Tamaño del sistema (2 a 7):
+              <input
+                type="number"
+                min="2"
+                max="7"
+                value={n}
+                onChange={(e) => handleTamañoChange(e.target.value)}
+              />
+            </label>
 
-        <div className="matrices-container">
-          <div>
-            <h4>Matriz A:</h4>
-            <table className="matrix-input">
-              <tbody>
-                {matrix.map((row, i) => (
-                  <tr key={i}>
-                    {row.map((val, j) => (
-                      <td key={j}>
-                        <input
-                          type="number"
-                          step="any"
-                          value={val}
-                          onChange={(e) =>
-                            handleMatrixChange(i, j, e.target.value)
-                          }
-                          required
-                        />
-                      </td>
+            <div
+              className="matrices-container"
+              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+            >
+              <div>
+                <h4>Matriz A:</h4>
+                <table className="matrix-input">
+                  <tbody>
+                    {matrix.map((row, i) => (
+                      <tr key={i}>
+                        {row.map((val, j) => (
+                          <td key={j}>
+                            <input
+                              type="number"
+                              step="any"
+                              value={val}
+                              onChange={(e) =>
+                                handleMatrixChange(i, j, e.target.value)
+                              }
+                              required
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div
+              className="matrices-container"
+              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+            >
+              <div>
+                <h4>Vector B:</h4>
+                {vectorB.map((val, i) => (
+                  <input
+                    key={i}
+                    type="number"
+                    step="any"
+                    value={val}
+                    onChange={(e) =>
+                      handleVectorChange(vectorB, i, e.target.value)
+                    }
+                    required
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      width: "70px",
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div>
+                <h4>Vector x0:</h4>
+                {x0.map((val, i) => (
+                  <input
+                    key={i}
+                    type="number"
+                    step="any"
+                    value={val}
+                    onChange={(e) => handleVectorChange(x0, i, e.target.value)}
+                    required
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      width: "70px",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <label>
+              Tolerancia:
+              <input
+                type="number"
+                step="any"
+                value={tolerance}
+                onChange={(e) => setTolerance(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Máximo número de iteraciones:
+              <input
+                type="number"
+                value={iterations}
+                onChange={(e) => setIterations(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Norma:
+              <select value={norm} onChange={handleNormChange}>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="inf">Infinita</option>
+              </select>
+            </label>
+
+            <label className="campo">
+              Omega (relajación):
+              <input
+                type="number"
+                step="any"
+                value={omega}
+                onChange={(e) => setOmega(e.target.value)}
+                required
+                min="0.01"
+                max="1.99"
+                className="entrada"
+              />
+            </label>
+
+            <button type="submit" className="informe-btn">
+              Ejecutar
+            </button>
+          </div>
+        </form>
+
+        {error && <p className="error">{error}</p>}
+
+        {resultado && (
+          <div className="resultado-container">
+            <h3>Resultado:</h3>
+            <p>
+              <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
+            </p>
+            <p>
+              <strong>Radio espectral:</strong>{" "}
+              {resultado.radio_espectral.toFixed(6)}
+            </p>
+
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Iteración</th>
+                    <th>Error</th>
+                    {Object.keys(resultado.tabla[0].x).map((key, i) => (
+                      <th key={i}>{key}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <h4>Vector B:</h4>
-            {vectorB.map((val, i) => (
-              <input
-                key={i}
-                type="number"
-                step="any"
-                value={val}
-                onChange={(e) => handleVectorChange(vectorB, i, e.target.value)}
-                required
-              />
-            ))}
-          </div>
-
-          <div>
-            <h4>Vector inicial x0:</h4>
-            {x0.map((val, i) => (
-              <input
-                key={i}
-                type="number"
-                step="any"
-                value={val}
-                onChange={(e) => handleVectorChange(x0, i, e.target.value)}
-                required
-              />
-            ))}
-          </div>
-        </div>
-
-        <label>
-          Tolerancia:
-          <input
-            type="number"
-            step="any"
-            value={tolerance}
-            onChange={(e) => setTolerance(e.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Máximo número de iteraciones:
-          <input
-            type="number"
-            value={iterations}
-            onChange={(e) => setIterations(e.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Norma:
-          <select value={norm} onChange={handleNormChange}>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="inf">Infinita</option>
-          </select>
-        </label>
-
-        <label>
-          Omega (relajación):
-          <input
-            type="number"
-            step="any"
-            value={omega}
-            onChange={(e) => setOmega(e.target.value)}
-            required
-            min="0.01"
-            max="1.99"
-          />
-        </label>
-
-        <button type="submit">Ejecutar</button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-
-      {resultado && (
-        <div className="resultado-jacobi">
-          <h3>Resultado:</h3>
-          <p>
-            <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
-          </p>
-          <p>
-            <strong>Radio espectral:</strong>{" "}
-            {resultado.radio_espectral !== undefined
-              ? resultado.radio_espectral.toFixed(6)
-              : "N/A"}
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Iteración</th>
-                <th>Error</th>
-                {resultado.tabla?.length > 0 &&
-                  resultado.tabla[0].x &&
-                  Object.keys(resultado.tabla[0].x).map((key, i) => (
-                    <th key={i}>{key}</th>
+                </thead>
+                <tbody>
+                  {resultado.tabla.map((fila, i) => (
+                    <tr
+                      key={i}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{fila.iteracion}</td>
+                      <td>{parseFloat(fila.error).toExponential(3)}</td>
+                      {Object.values(fila.x).map((val, j) => (
+                        <td key={j}>{parseFloat(val).toExponential(3)}</td>
+                      ))}
+                    </tr>
                   ))}
-              </tr>
-            </thead>
-            <tbody>
-              {resultado.tabla?.map((fila, i) => (
-                <tr key={i}>
-                  <td>{fila.iteracion}</td>
-                  <td>{parseFloat(fila.error).toExponential(3)}</td>
-                  {Object.values(fila.x || {}).map((val, j) => (
-                    <td key={j}>{parseFloat(val).toExponential(3)}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

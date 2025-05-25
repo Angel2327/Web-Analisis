@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "../assets/EstiloMetodos.css";
 
 export default function Spline() {
   const [n, setN] = useState(2);
@@ -69,175 +70,145 @@ export default function Spline() {
   };
 
   return (
-    <div
-      className="method-container"
-      style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}
-    >
-      <h2 style={{ textAlign: "center" }}>Interpolación por Splines</h2>
+    <div className="biseccion-page">
+      <h2 className="titulo-principal">Interpolación por Splines</h2>
 
-      <label
-        style={{ display: "block", textAlign: "center", marginBottom: "1rem" }}
-      >
-        Número de puntos (2-8):{" "}
-        <input
-          type="number"
-          value={n}
-          min="2"
-          max="8"
-          onChange={handleChangeN}
-        />
-      </label>
+      <div className="top-section">
+        <div className="formulario-contenedor">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>
+              Número de puntos (2-8):
+              <input
+                type="number"
+                value={n}
+                min="2"
+                max="8"
+                onChange={handleChangeN}
+              />
+            </label>
 
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-        <label>
-          Tipo de Spline:{" "}
-          <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            <option value="lineal">Lineal</option>
-            <option value="cubico">Cúbico</option>
-          </select>
-        </label>
-      </div>
+            <label>
+              Tipo de Spline:
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+                <option value="lineal">Lineal</option>
+                <option value="cubico">Cúbico</option>
+              </select>
+            </label>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {points.map((point, idx) => (
-          <div key={idx} style={{ marginBottom: "0.5rem" }}>
-            <input
-              type="number"
-              placeholder={`x${idx}`}
-              value={point.x}
-              onChange={(e) => handleChangePoint(idx, "x", e.target.value)}
-              required
-              style={{ marginRight: "0.5rem" }}
-            />
-            <input
-              type="number"
-              placeholder={`y${idx}`}
-              value={point.y}
-              onChange={(e) => handleChangePoint(idx, "y", e.target.value)}
-              required
-            />
+            {points.map((point, idx) => (
+              <label key={idx}>
+                {idx === 0 && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "200px 200px",
+                      gap: "1rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    <div>X:</div>
+                    <div>Y:</div>
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    type="number"
+                    placeholder={`x${idx}`}
+                    value={point.x}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "x", e.target.value)
+                    }
+                    required
+                  />
+
+                  <input
+                    type="number"
+                    placeholder={`y${idx}`}
+                    value={point.y}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "y", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </label>
+            ))}
+
+            <button type="submit">Calcular</button>
+          </form>
+          {error && <p className="error">{error}</p>}
+        </div>
+
+        {splines && (
+          <div className="resultado-container">
+            <h3>{tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico"}</h3>
+
+            <h4>Tabla de Coeficientes</h4>
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>i</th>
+                    <th>Coeficiente 1</th>
+                    <th>Coeficiente 2</th>
+                    {tipo === "cubico" && (
+                      <>
+                        <th>Coeficiente 3</th>
+                        <th>Coeficiente 4</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr
+                      key={item.i}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{item.i}</td>
+                      <td>{item.coef1}</td>
+                      <td>{item.coef2}</td>
+                      {tipo === "cubico" && (
+                        <>
+                          <td>{item.coef3}</td>
+                          <td>{item.coef4}</td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <h4 style={{ marginTop: "1rem" }}>Tabla de Rastreadores</h4>
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>i</th>
+                    <th>Rastreadores</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {splines?.coeficientes?.map((item) => (
+                    <tr
+                      key={item.i}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{item.i}</td>
+                      <td>{item.formato}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        ))}
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Calcular
-        </button>
-      </form>
-
-      {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
-
-      {splines && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            {tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico"}
-          </h3>
-
-          {/* Mostrar para Spline Lineal */}
-          {tipo === "lineal" && (
-            <>
-              <h4 style={{ textAlign: "center" }}>Tabla de Coeficientes</h4>
-              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th style={cellStyle}>i</th>
-                    <th style={cellStyle}>Coeficiente 1</th>
-                    <th style={cellStyle}>Coeficiente 2</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {splines?.coeficientes?.map((item) => (
-                    <tr key={item.i}>
-                      <td style={cellStyle}>{item.i}</td>
-                      <td style={cellStyle}>{item.coef1}</td>
-                      <td style={cellStyle}>{item.coef2}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <h4 style={{ textAlign: "center", marginTop: "1rem" }}>
-                Tabla de Rastreadores
-              </h4>
-              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th style={cellStyle}>i</th>
-                    <th style={cellStyle}>Rastreadores</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {splines?.coeficientes?.map((item) => (
-                    <tr key={item.i}>
-                      <td style={cellStyle}>{item.i}</td>
-                      <td style={cellStyle}>{item.formato}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
-
-          {/* Mostrar para Spline Cúbico */}
-          {tipo === "cubico" && (
-            <>
-              <h4 style={{ textAlign: "center" }}>Tabla de Coeficientes</h4>
-              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th style={cellStyle}>i</th>
-                    <th style={cellStyle}>Coeficiente 1</th>
-                    <th style={cellStyle}>Coeficiente 2</th>
-                    <th style={cellStyle}>Coeficiente 3</th>
-                    <th style={cellStyle}>Coeficiente 4</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {splines?.coeficientes?.map((item) => (
-                    <tr key={item.i}>
-                      <td style={cellStyle}>{item.i}</td>
-                      <td style={cellStyle}>{item.coef1}</td>
-                      <td style={cellStyle}>{item.coef2}</td>
-                      <td style={cellStyle}>{item.coef3}</td>
-                      <td style={cellStyle}>{item.coef4}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <h4 style={{ textAlign: "center", marginTop: "1rem" }}>
-                Tabla de Rastreadores
-              </h4>
-              <table style={{ margin: "0 auto", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr>
-                    <th style={cellStyle}>i</th>
-                    <th style={cellStyle}>Rastreadores</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {splines?.coeficientes?.map((item) => (
-                    <tr key={item.i}>
-                      <td style={cellStyle}>{item.i}</td>
-                      <td style={cellStyle}>{item.formato}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }
-
-const cellStyle = {
-  border: "1px solid black",
-  padding: "0.5rem",
-};

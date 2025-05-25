@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import "./EstiloMetodos.css";
+import "../assets/EstiloMetodos.css";
 
 function PuntoFijo() {
   const [params, setParams] = useState({
@@ -90,7 +90,7 @@ function PuntoFijo() {
     texto += `g(x): ${params.g_funcion}\n\n`;
     texto += "Iteración | x | g(x) | f(x) | error\n";
     texto += "-------------------------------------\n";
-    resultado.tabla.forEach((row, i) => {
+    resultado.tabla.forEach((row) => {
       texto += `Iteración ${row.iteracion}: x=${row.x}, g(x)=${row["g(x)"]}, f(x)=${row["f(x)"]}, error=${row.error}\n`;
     });
 
@@ -104,135 +104,153 @@ function PuntoFijo() {
 
   return (
     <div className="biseccion-page">
-      <h2>Método de Punto Fijo</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Función f(x):</label>
-        <input
-          type="text"
-          name="funcion"
-          value={params.funcion}
-          onChange={handleChange}
-          placeholder="Ej: x**3 + 4*x**2 - 10"
-        />
-        <label>Función g(x):</label>
-        <input
-          type="text"
-          name="g_funcion"
-          value={params.g_funcion}
-          onChange={handleChange}
-          placeholder="Ej: sqrt(10 / (x + 4))"
-        />
-        <small>
-          Usa funciones de Python: sin(x), log(x), exp(x), sqrt(x), etc.
-        </small>
+      <h1 className="titulo-principal">Método de Punto Fijo</h1>
 
-        <label>Valor inicial (x0):</label>
-        <input
-          type="number"
-          name="x0"
-          value={params.x0}
-          onChange={handleChange}
-          placeholder="Ej: 1.5"
-        />
-        <label>Tolerancia:</label>
-        <input
-          type="text"
-          name="tolerancia"
-          value={params.tolerancia}
-          onChange={handleChange}
-          placeholder="Ej: 1e-7"
-        />
-        <label>Máximo de iteraciones (máximo 100):</label>
-        <input
-          type="number"
-          name="max_iter"
-          value={params.max_iter}
-          onChange={handleChange}
-          max={100}
-          placeholder="Ej: 50"
-        />
+      <div className="top-section">
+        <div className="formulario-contenedor">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>Función f(x):</label>
+            <input
+              type="text"
+              name="funcion"
+              value={params.funcion}
+              onChange={handleChange}
+              placeholder="Ej: log(sin(x)^2 + 1)-(1/2)-x"
+              required
+            />
+            <label>Función g(x):</label>
+            <input
+              type="text"
+              name="g_funcion"
+              value={params.g_funcion}
+              onChange={handleChange}
+              placeholder="Ej: log(sin(x)^2 + 1)-(1/2)"
+              required
+            />
+            <small>
+              Usa funciones de Python: sin(x), log(x), exp(x), sqrt(x), etc.
+            </small>
 
-        <button type="submit">Ejecutar</button>
-      </form>
+            <label>Valor inicial (x0):</label>
+            <input
+              type="number"
+              name="x0"
+              value={params.x0}
+              onChange={handleChange}
+              placeholder="Ej: 0.5"
+              required
+            />
+            <label>Tolerancia:</label>
+            <input
+              type="text"
+              name="tolerancia"
+              value={params.tolerancia}
+              onChange={handleChange}
+              placeholder="Ej: 1e-7"
+              required
+            />
+            <label>Número de iteraciones (100 Max):</label>
+            <input
+              type="number"
+              name="max_iter"
+              value={params.max_iter}
+              onChange={handleChange}
+              placeholder="Ej: 100"
+              max={100}
+              required
+            />
+
+            <button type="submit">Calcular</button>
+          </form>
+        </div>
+
+        {resultado && (
+          <div className="resultado-container">
+            <h3>Tabla Solución</h3>
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Iteración</th>
+                    <th>x</th>
+                    <th>g(x)</th>
+                    <th>f(x)</th>
+                    <th>Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultado.tabla.map((row, idx) => (
+                    <tr
+                      key={idx}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{row.iteracion}</td>
+                      <td>{Number(row.x).toFixed(10)}</td>
+                      <td>
+                        {row["g(x)"] !== null
+                          ? Number(row["g(x)"]).toFixed(10)
+                          : "NaN"}
+                      </td>
+                      <td>{Number(row["f(x)"]).toFixed(10)}</td>
+                      <td>{Number(row.error).toFixed(10)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button className="informe-btn" onClick={generarInforme}>
+              Generar informe
+            </button>
+          </div>
+        )}
+      </div>
 
       {error && <p className="error">{error}</p>}
 
-      {resultado && (
-        <div className="resultado-container">
-          <h3>Resultado</h3>
-          <div className="tabla-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Iteración</th>
-                  <th>x</th>
-                  <th>g(x)</th>
-                  <th>f(x)</th>
-                  <th>Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultado.tabla.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{row.iteracion}</td>
-                    <td>{Number(row.x).toFixed(10)}</td>
-                    <td>
-                      {row["g(x)"] !== null
-                        ? Number(row["g(x)"]).toFixed(10)
-                        : "NaN"}
-                    </td>
-                    <td>{Number(row["f(x)"]).toFixed(10)}</td>
-                    <td>{Number(row.error).toFixed(10)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <button className="informe-btn" onClick={generarInforme}>
-            Generar informe
-          </button>
-        </div>
-      )}
-
       {plotData && (
         <div className="plot-container">
-          <h3>Gráfica de f(x) y g(x)</h3>
-          <Plot
-            data={[
-              {
-                x: plotData.x,
-                y: plotData.y,
-                type: "scatter",
-                mode: "lines",
-                name: "f(x)",
-                line: { color: "blue" },
-              },
-              {
-                x: plotData.x,
-                y: plotData.gx,
-                type: "scatter",
-                mode: "lines",
-                name: "g(x)",
-                line: { color: "orange" },
-              },
-              {
-                x: plotData.x,
-                y: plotData.x, // Diagonal y=x para referencia
-                type: "scatter",
-                mode: "lines",
-                name: "y = x",
-                line: { color: "green", dash: "dash" },
-              },
-            ]}
-            layout={{
-              width: 650,
-              height: 450,
-              title: "Gráfica Método Punto Fijo",
-              xaxis: { title: "x" },
-              yaxis: { title: "y" },
-            }}
-          />
+          <div className="plot-content">
+            <h3>Gráfica de f(x), g(x) y y=x</h3>
+            <Plot
+              data={[
+                {
+                  x: plotData.x,
+                  y: plotData.y,
+                  type: "scatter",
+                  mode: "lines",
+                  name: "f(x)",
+                  line: { color: "blue" },
+                },
+                {
+                  x: plotData.x,
+                  y: plotData.gx,
+                  type: "scatter",
+                  mode: "lines",
+                  name: "g(x)",
+                  line: { color: "orange" },
+                },
+                {
+                  x: plotData.x,
+                  y: plotData.x,
+                  type: "scatter",
+                  mode: "lines",
+                  name: "y = x",
+                  line: { color: "green", dash: "dash" },
+                },
+              ]}
+              layout={{
+                title: "Gráfica Método Punto Fijo",
+                xaxis: { title: "x" },
+                yaxis: { title: "y" },
+                width: 650,
+                height: 450,
+              }}
+              style={{ width: "100%", height: "100%", maxHeight: "450px" }}
+              useResizeHandler={true}
+            />
+          </div>
         </div>
       )}
     </div>

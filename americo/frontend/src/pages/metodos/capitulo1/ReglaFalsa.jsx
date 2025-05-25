@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import "./EstiloMetodos.css";
+import "../assets/EstiloMetodos.css";
 
 function ReglaFalsa() {
   const [params, setParams] = useState({
@@ -105,113 +105,134 @@ function ReglaFalsa() {
 
   return (
     <div className="biseccion-page">
-      <h2>Método de Regla Falsa</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Función:</label>
-        <input
-          type="text"
-          name="funcion"
-          value={params.funcion}
-          onChange={handleChange}
-          placeholder="Ej: log(sin(x)^2 + 1)-(1/2)"
-        />
-        <small>Usa funciones de Python: sin(x), log(x), exp(x), etc.</small>
+      <h1 className="titulo-principal">Método de Regla Falsa</h1>
 
-        <label>Valor del intervalo inferior (a):</label>
-        <input
-          type="number"
-          name="a"
-          value={params.a}
-          onChange={handleChange}
-          placeholder="Ej: 0"
-        />
-        <label>Valor del intervalo superior (b):</label>
-        <input
-          type="number"
-          name="b"
-          value={params.b}
-          onChange={handleChange}
-          placeholder="Ej: 1"
-        />
-        <label>Tolerancia:</label>
-        <input
-          type="text"
-          name="tolerancia"
-          value={params.tolerancia}
-          onChange={handleChange}
-          placeholder="Ej: 1e-7"
-        />
-        <label>Máximo de iteraciones (máximo 100):</label>
-        <input
-          type="number"
-          name="max_iter"
-          value={params.max_iter}
-          onChange={handleChange}
-          max={100}
-          placeholder="Ej: 50"
-        />
+      <div className="top-section">
+        <div className="formulario-contenedor">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>Función:</label>
+            <input
+              type="text"
+              name="funcion"
+              value={params.funcion}
+              onChange={handleChange}
+              placeholder="Ej: log(sin(x)^2 + 1)-(1/2)"
+              required
+            />
 
-        <button type="submit">Ejecutar</button>
-      </form>
+            <label>Valor del intervalo inferior (a):</label>
+            <input
+              type="number"
+              name="a"
+              value={params.a}
+              onChange={handleChange}
+              placeholder="Ej: 0"
+              required
+            />
+
+            <label>Valor del intervalo superior (b):</label>
+            <input
+              type="number"
+              name="b"
+              value={params.b}
+              onChange={handleChange}
+              placeholder="Ej: 1"
+              required
+            />
+
+            <label>Tolerancia:</label>
+            <input
+              type="text"
+              name="tolerancia"
+              value={params.tolerancia}
+              onChange={handleChange}
+              placeholder="Ej: 1e-7"
+              required
+            />
+
+            <label>Número de iteraciones (100 Max):</label>
+            <input
+              type="number"
+              name="max_iter"
+              value={params.max_iter}
+              onChange={handleChange}
+              max={100}
+              placeholder="Ej: 100"
+              required
+            />
+
+            <button type="submit">Calcular</button>
+          </form>
+        </div>
+
+        {resultado && (
+          <div className="resultado-container">
+            <h3>Tabla Solución</h3>
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Iteración</th>
+                    <th>a</th>
+                    <th>b</th>
+                    <th>xr</th>
+                    <th>f(xr)</th>
+                    <th>Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultado.tabla.map((row, idx) => (
+                    <tr
+                      key={idx}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{idx}</td>
+                      <td>{Number(row.a).toFixed(10)}</td>
+                      <td>{Number(row.b).toFixed(10)}</td>
+                      <td>{Number(row.c).toFixed(10)}</td>
+                      <td>{Number(row["f(c)"]).toFixed(10)}</td>
+                      <td>{Number(row.error).toFixed(10)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button className="informe-btn" onClick={generarInforme}>
+              Generar informe
+            </button>
+          </div>
+        )}
+      </div>
 
       {error && <p className="error">{error}</p>}
 
-      {resultado && (
-        <div className="resultado-container">
-          <h3>Resultado</h3>
-          <div className="tabla-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Iteración</th>
-                  <th>a</th>
-                  <th>b</th>
-                  <th>xr</th>
-                  <th>f(xr)</th>
-                  <th>Error</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultado.tabla.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{idx}</td>
-                    <td>{Number(row.a).toFixed(10)}</td>
-                    <td>{Number(row.b).toFixed(10)}</td>
-                    <td>{Number(row.c).toFixed(10)}</td>
-                    <td>{Number(row["f(c)"]).toFixed(10)}</td>
-                    <td>{Number(row.error).toFixed(10)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <button className="informe-btn" onClick={generarInforme}>
-            Generar informe
-          </button>
-        </div>
-      )}
-
       {plotData && (
         <div className="plot-container">
-          <h3>Gráfica de la función</h3>
-          <Plot
-            data={[
-              {
-                x: plotData.x,
-                y: plotData.y,
-                type: "scatter",
-                mode: "lines",
-                marker: { color: "blue" },
-              },
-            ]}
-            layout={{
-              title: "f(x)",
-              xaxis: { title: "x" },
-              yaxis: { title: "f(x)" },
-            }}
-            style={{ width: "100%", height: "400px" }}
-          />
+          <div className="plot-content">
+            <h3>Gráfica de la función</h3>
+            <Plot
+              data={[
+                {
+                  x: plotData.x,
+                  y: plotData.y,
+                  type: "scatter",
+                  mode: "lines",
+                  marker: { color: "blue" },
+                },
+              ]}
+              layout={{
+                title: "f(x)",
+                xaxis: { title: "x" },
+                yaxis: { title: "f(x)" },
+                width: 650,
+                height: 450,
+              }}
+              style={{ width: "100%", height: "100%", maxHeight: "450px" }}
+              useResizeHandler={true}
+            />
+          </div>
         </div>
       )}
     </div>

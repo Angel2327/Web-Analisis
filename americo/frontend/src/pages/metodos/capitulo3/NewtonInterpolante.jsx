@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "../assets/EstiloMetodos.css";
 
 export default function NewtonInterpolante() {
   const [n, setN] = useState(2);
@@ -53,6 +54,8 @@ export default function NewtonInterpolante() {
       setError(
         err.response?.data?.message || "Error al conectar con el servidor."
       );
+      setDifferenceTable(null);
+      setCoeffs(null);
     }
   };
 
@@ -75,141 +78,133 @@ export default function NewtonInterpolante() {
   };
 
   return (
-    <div
-      className="method-container"
-      style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}
-    >
-      <h2 style={{ textAlign: "center" }}>Método de Interpolación de Newton</h2>
+    <div className="biseccion-page">
+      <h1 className="titulo-principal">Método de Interpolación de Newton</h1>
 
-      <label
-        style={{ display: "block", textAlign: "center", marginBottom: "1rem" }}
-      >
-        Número de puntos (2-8):{" "}
-        <input
-          type="number"
-          value={n}
-          min="2"
-          max="8"
-          onChange={handleChangeN}
-        />
-      </label>
+      <div className="top-section">
+        <div className="formulario-contenedor">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>
+              Número de puntos (2-8):
+              <input
+                type="number"
+                value={n}
+                min="2"
+                max="8"
+                onChange={handleChangeN}
+              />
+            </label>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {points.map((point, idx) => (
-          <div
-            key={idx}
-            className="point-row"
-            style={{ marginBottom: "0.5rem" }}
-          >
-            <input
-              type="number"
-              placeholder={`x${idx}`}
-              value={point.x}
-              onChange={(e) => handleChangePoint(idx, "x", e.target.value)}
-              required
-              style={{ marginRight: "0.5rem" }}
-            />
-            <input
-              type="number"
-              placeholder={`y${idx}`}
-              value={point.y}
-              onChange={(e) => handleChangePoint(idx, "y", e.target.value)}
-              required
-            />
-          </div>
-        ))}
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Calcular
-        </button>
-      </form>
+            {points.map((point, idx) => (
+              <label key={idx}>
+                {idx === 0 && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "200px 200px",
+                      gap: "1rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    <div>X:</div>
+                    <div>Y:</div>
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    type="number"
+                    placeholder={`x${idx}`}
+                    value={point.x}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "x", e.target.value)
+                    }
+                    required
+                  />
 
-      {error && (
-        <p className="error" style={{ color: "red", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
+                  <input
+                    type="number"
+                    placeholder={`y${idx}`}
+                    value={point.y}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "y", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </label>
+            ))}
 
-      {differenceTable && (
-        <div>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Tabla de Diferencias Divididas
-          </h3>
-          <table
-            border="1"
-            cellPadding="5"
-            style={{
-              borderCollapse: "collapse",
-              margin: "0 auto",
-              fontFamily: "monospace",
-            }}
-          >
-            <thead>
-              <tr>
-                <th>n</th>
-                <th>xi</th>
-                <th>y = f[xi]</th>
-                {differenceTable[0].slice(1).map((_, idx) => (
-                  <th key={idx}>{idx + 1}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {differenceTable.map((row, i) => (
-                <tr key={i}>
-                  <td>{i}</td>
-                  <td>{formatTableNumber(points[i]?.x)}</td>
-                  {row.map((val, j) => (
-                    <td key={j}>{formatTableNumber(val)}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <button type="submit">Calcular</button>
+          </form>
+
+          {error && <p className="error">{error}</p>}
         </div>
-      )}
 
-      {coeffs && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Coeficientes polinomiales de Newton
-          </h3>
-          <p
-            style={{
-              textAlign: "center",
-              fontFamily: "monospace",
-              fontSize: "1.2rem",
-            }}
-          >
-            [{coeffs.map((c) => formatShort(c)).join(", ")}]
-          </p>
-        </>
-      )}
+        {(differenceTable || coeffs) && (
+          <div className="resultado-container">
+            {differenceTable && (
+              <div>
+                <h3>Tabla de Diferencias Divididas</h3>
+                <div className="tabla-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>n</th>
+                        <th>xi</th>
+                        <th>y = f[xi]</th>
+                        {differenceTable[0].slice(1).map((_, idx) => (
+                          <th key={idx}>{idx + 1}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {differenceTable.map((row, i) => (
+                        <tr
+                          key={i}
+                          style={{
+                            textAlign: "center",
+                          }}
+                        >
+                          <td>{i}</td>
+                          <td>{formatTableNumber(points[i]?.x)}</td>
+                          {row.map((val, j) => (
+                            <td key={j}>{formatTableNumber(val)}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-      {coeffs && points && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Polinomio Interpolante Expandido
-          </h3>
-          <pre
-            style={{
-              textAlign: "center",
-              fontFamily: "monospace",
-              fontSize: "1.2rem",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            {polinomioExtendido(coeffs, points)}
-          </pre>
-        </>
-      )}
+            {coeffs && (
+              <>
+                <h3>Coeficientes polinomiales de Newton</h3>
+                <p style={{ fontFamily: "monospace", fontSize: "1rem" }}>
+                  [{coeffs.map((c) => formatShort(c)).join(", ")}]
+                </p>
+              </>
+            )}
+
+            {coeffs && points && (
+              <>
+                <h3>Polinomio Interpolante Expandido</h3>
+                <pre
+                  style={{
+                    fontFamily: "monospace",
+                    fontSize: "1rem",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {polinomioExtendido(coeffs, points)}
+                </pre>
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Jacobi.css";
+import "../assets/EstiloMetodos.css";
 
 const GaussSeidel = () => {
   const [n, setN] = useState(3);
-  const [matrix, setMatrix] = useState(Array(3).fill(Array(3).fill("")));
+  const [matrix, setMatrix] = useState(
+    Array(3)
+      .fill()
+      .map(() => Array(3).fill(""))
+  );
   const [vectorB, setVectorB] = useState(Array(3).fill(""));
   const [x0, setX0] = useState(Array(3).fill(""));
   const [tolerance, setTolerance] = useState("");
@@ -20,16 +24,14 @@ const GaussSeidel = () => {
     setMatrix(newMatrix);
   };
 
-  const handleVectorChange = (setter, index, value) => {
-    const newVec = [...setter];
-    newVec[index] = value;
-    if (setter === vectorB) setVectorB(newVec);
-    else setX0(newVec);
+  const handleVectorChange = (vectorSetter, index, value) => {
+    const newVector = [...vectorSetter];
+    newVector[index] = value;
+    if (vectorSetter === vectorB) setVectorB(newVector);
+    else setX0(newVector);
   };
 
-  const handleNormChange = (e) => {
-    setNorm(e.target.value);
-  };
+  const handleNormChange = (e) => setNorm(e.target.value);
 
   const handleTamañoChange = (newN) => {
     const size = parseInt(newN);
@@ -45,7 +47,6 @@ const GaussSeidel = () => {
   };
 
   const validarEntradas = () => {
-    // Validar matriz
     for (let i = 0; i < n; i++) {
       for (let j = 0; j < n; j++) {
         if (matrix[i][j] === "" || isNaN(matrix[i][j])) {
@@ -57,16 +58,11 @@ const GaussSeidel = () => {
       }
     }
 
-    // Validar vector B
     for (let i = 0; i < n; i++) {
       if (vectorB[i] === "" || isNaN(vectorB[i])) {
         setError(`Valor inválido en el vector B en la posición [${i + 1}]`);
         return false;
       }
-    }
-
-    // Validar vector x0
-    for (let i = 0; i < n; i++) {
       if (x0[i] === "" || isNaN(x0[i])) {
         setError(
           `Valor inválido en el vector inicial x0 en la posición [${i + 1}]`
@@ -75,14 +71,12 @@ const GaussSeidel = () => {
       }
     }
 
-    // Validar tolerancia
     const tol = parseFloat(tolerance);
     if (isNaN(tol) || tol <= 0) {
       setError("La tolerancia debe ser un número mayor que 0.");
       return false;
     }
 
-    // Validar iteraciones
     const iter = parseInt(iterations);
     if (isNaN(iter) || iter <= 0) {
       setError("El número de iteraciones debe ser un entero positivo.");
@@ -125,145 +119,178 @@ const GaussSeidel = () => {
   };
 
   return (
-    <div className="jacobi-container">
-      <h2>Método de Gauss-Seidel</h2>
-      <form onSubmit={handleSubmit} className="form-jacobi">
-        <label>
-          Tamaño del sistema (2 a 7):
-          <input
-            type="number"
-            min="2"
-            max="7"
-            value={n}
-            onChange={(e) => handleTamañoChange(e.target.value)}
-          />
-        </label>
+    <div className="biseccion-page">
+      <h1 className="titulo-principal">Método de Gauss-Seidel</h1>
+      <div className="top-section">
+        <form onSubmit={handleSubmit} className="formulario-contenedor-cap2">
+          <div className="formulario">
+            <label>
+              Tamaño del sistema (2 a 7):
+              <input
+                type="number"
+                min="2"
+                max="7"
+                value={n}
+                onChange={(e) => handleTamañoChange(e.target.value)}
+              />
+            </label>
 
-        <div className="matrices-container">
-          <div>
-            <h4>Matriz A:</h4>
-            <table className="matrix-input">
-              <tbody>
-                {matrix.map((row, i) => (
-                  <tr key={i}>
-                    {row.map((val, j) => (
-                      <td key={j}>
-                        <input
-                          type="number"
-                          step="any"
-                          value={val}
-                          onChange={(e) =>
-                            handleMatrixChange(i, j, e.target.value)
-                          }
-                          required
-                        />
-                      </td>
+            <div
+              className="matrices-container"
+              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+            >
+              <div>
+                <h4>Matriz A:</h4>
+                <table className="matrix-input">
+                  <tbody>
+                    {matrix.map((row, i) => (
+                      <tr key={i}>
+                        {row.map((val, j) => (
+                          <td key={j}>
+                            <input
+                              type="number"
+                              step="any"
+                              value={val}
+                              onChange={(e) =>
+                                handleMatrixChange(i, j, e.target.value)
+                              }
+                              required
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div
+              className="matrices-container"
+              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+            >
+              <div>
+                <h4>Vector B:</h4>
+                {vectorB.map((val, i) => (
+                  <input
+                    key={i}
+                    type="number"
+                    step="any"
+                    value={val}
+                    onChange={(e) =>
+                      handleVectorChange(vectorB, i, e.target.value)
+                    }
+                    required
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      width: "70px",
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div>
+                <h4>Vector x0:</h4>
+                {x0.map((val, i) => (
+                  <input
+                    key={i}
+                    type="number"
+                    step="any"
+                    value={val}
+                    onChange={(e) => handleVectorChange(x0, i, e.target.value)}
+                    required
+                    style={{
+                      display: "block",
+                      marginBottom: "6px",
+                      width: "70px",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <label>
+              Tolerancia:
+              <input
+                type="number"
+                step="any"
+                value={tolerance}
+                onChange={(e) => setTolerance(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Máximo número de iteraciones:
+              <input
+                type="number"
+                value={iterations}
+                onChange={(e) => setIterations(e.target.value)}
+                required
+              />
+            </label>
+
+            <label>
+              Norma:
+              <select value={norm} onChange={handleNormChange}>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="inf">Infinita</option>
+              </select>
+            </label>
+
+            <button type="submit" className="informe-btn">
+              Ejecutar
+            </button>
+          </div>
+        </form>
+
+        {error && <p className="error">{error}</p>}
+
+        {resultado && (
+          <div className="resultado-container">
+            <h3>Resultado:</h3>
+            <p>
+              <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
+            </p>
+            <p>
+              <strong>Radio espectral:</strong>{" "}
+              {resultado.radio_espectral.toFixed(6)}
+            </p>
+
+            <div className="tabla-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Iteración</th>
+                    <th>Error</th>
+                    {Object.keys(resultado.tabla[0].x).map((key, i) => (
+                      <th key={i}>{key}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <h4>Vector B:</h4>
-            {vectorB.map((val, i) => (
-              <input
-                key={i}
-                type="number"
-                step="any"
-                value={val}
-                onChange={(e) => handleVectorChange(vectorB, i, e.target.value)}
-                required
-              />
-            ))}
-          </div>
-
-          <div>
-            <h4>Vector inicial x0:</h4>
-            {x0.map((val, i) => (
-              <input
-                key={i}
-                type="number"
-                step="any"
-                value={val}
-                onChange={(e) => handleVectorChange(x0, i, e.target.value)}
-                required
-              />
-            ))}
-          </div>
-        </div>
-
-        <label>
-          Tolerancia:
-          <input
-            type="number"
-            step="any"
-            value={tolerance}
-            onChange={(e) => setTolerance(e.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Máximo número de iteraciones:
-          <input
-            type="number"
-            value={iterations}
-            onChange={(e) => setIterations(e.target.value)}
-            required
-          />
-        </label>
-
-        <label>
-          Norma:
-          <select value={norm} onChange={handleNormChange}>
-            <option value="1"> 1</option>
-            <option value="2"> 2</option>
-            <option value="3"> 3</option>
-            <option value="inf"> Infinita</option>
-          </select>
-        </label>
-
-        <button type="submit">Ejecutar</button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-
-      {resultado && (
-        <div className="resultado-jacobi">
-          <h3>Resultado:</h3>
-          <p>
-            <strong>Convergencia:</strong> {resultado.converge ? "Sí" : "No"}
-          </p>
-          <p>
-            <strong>Radio espectral:</strong>{" "}
-            {resultado.radio_espectral.toFixed(6)}
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Iteración</th>
-                <th>Error</th>
-                {Object.keys(resultado.tabla[0].x).map((key, i) => (
-                  <th key={i}>{key}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {resultado.tabla.map((fila, i) => (
-                <tr key={i}>
-                  <td>{fila.iteracion}</td>
-                  <td>{parseFloat(fila.error).toExponential(3)}</td>
-                  {Object.values(fila.x).map((val, j) => (
-                    <td key={j}>{parseFloat(val).toExponential(3)}</td>
+                </thead>
+                <tbody>
+                  {resultado.tabla.map((fila, i) => (
+                    <tr
+                      key={i}
+                      style={{
+                        textAlign: "center",
+                      }}
+                    >
+                      <td>{fila.iteracion}</td>
+                      <td>{parseFloat(fila.error).toExponential(3)}</td>
+                      {Object.values(fila.x).map((val, j) => (
+                        <td key={j}>{parseFloat(val).toExponential(3)}</td>
+                      ))}
+                    </tr>
                   ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

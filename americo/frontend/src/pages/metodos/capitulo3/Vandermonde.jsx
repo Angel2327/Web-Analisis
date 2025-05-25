@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { BlockMath } from "react-katex";
+import "../assets/EstiloMetodos.css";
 
 export default function Vandermonde() {
   const [n, setN] = useState(2);
@@ -11,8 +12,6 @@ export default function Vandermonde() {
   const [poly, setPoly] = useState("");
   const [error, setError] = useState("");
 
-  // Función para formatear números
-  // fixed = true -> mostrar decimales fijos sin eliminar ceros
   function formatNumber(num, maxDecimals = 6, fixed = false) {
     if (fixed) {
       return Number.parseFloat(num).toFixed(maxDecimals);
@@ -56,12 +55,10 @@ export default function Vandermonde() {
       const reversedMatrix = data.matrix.map((row) => [...row].reverse());
       const reversedCoeffs = [...data.coeffs].reverse();
 
-      // Formatear polinomio con signos y potencias en LaTeX
       const formattedPoly = reversedCoeffs
         .map((coef, i) => {
           const power = reversedCoeffs.length - 1 - i;
           const sign = coef < 0 ? " - " : i > 0 ? " + " : "";
-          // Aquí usamos fixed=true para mostrar 3 decimales siempre
           const absCoef = formatNumber(Math.abs(coef), 3, true);
           let term;
           if (power === 0) term = `${absCoef}`;
@@ -113,120 +110,107 @@ export default function Vandermonde() {
   };
 
   return (
-    <div
-      className="method-container"
-      style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}
-    >
-      <h2 style={{ textAlign: "center" }}>
+    <div className="biseccion-page">
+      <h1 className="titulo-principal">
         Método de Interpolación de Vandermonde
-      </h2>
+      </h1>
+      <div className="top-section">
+        <div className="formulario-contenedor-cap3">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>
+              Número de puntos (2-8):
+              <input
+                type="number"
+                value={n}
+                min="2"
+                max="8"
+                onChange={handleChangeN}
+                required
+              />
+            </label>
 
-      <label
-        style={{ display: "block", textAlign: "center", marginBottom: "1rem" }}
-      >
-        Número de puntos (2-8):{" "}
-        <input
-          type="number"
-          value={n}
-          min="2"
-          max="8"
-          onChange={handleChangeN}
-        />
-      </label>
+            {points.map((point, idx) => (
+              <label key={idx}>
+                {idx === 0 && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "200px 200px",
+                      gap: "1rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    <div>X:</div>
+                    <div>Y:</div>
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    type="number"
+                    placeholder={`x${idx}`}
+                    value={point.x}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "x", e.target.value)
+                    }
+                    required
+                  />
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {points.map((point, idx) => (
-          <div
-            key={idx}
-            className="point-row"
-            style={{ marginBottom: "0.5rem" }}
-          >
-            <input
-              type="number"
-              placeholder={`x${idx}`}
-              value={point.x}
-              onChange={(e) => handleChangePoint(idx, "x", e.target.value)}
-              required
-              style={{ marginRight: "0.5rem" }}
-            />
-            <input
-              type="number"
-              placeholder={`y${idx}`}
-              value={point.y}
-              onChange={(e) => handleChangePoint(idx, "y", e.target.value)}
-              required
-            />
+                  <input
+                    type="number"
+                    placeholder={`y${idx}`}
+                    value={point.y}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "y", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </label>
+            ))}
+
+            <button type="submit">Calcular</button>
+          </form>
+
+          {error && <p className="error">{error}</p>}
+        </div>
+
+        {(matrix || coeffs || poly) && (
+          <div className="resultado-container-cap3">
+            {matrix && (
+              <>
+                <h3>Matriz de Vandermonde</h3>
+                <div className="tabla-scroll">
+                  <BlockMath>{generateMatrixLatex()}</BlockMath>
+                </div>
+              </>
+            )}
+
+            {coeffs && (
+              <>
+                <h3>Coeficientes Polinomiales</h3>
+                <p style={{ fontFamily: "monospace", fontSize: "1.2rem" }}>
+                  [{coeffs.map((c) => formatNumber(c, 3)).join(", ")}]
+                </p>
+              </>
+            )}
+
+            {poly && (
+              <>
+                <h3>Polinomio de Vandermonde</h3>
+                <div
+                  style={{
+                    fontFamily: "monospace",
+                    fontSize: "1.2rem",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  <BlockMath>{poly}</BlockMath>
+                </div>
+              </>
+            )}
           </div>
-        ))}
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Calcular
-        </button>
-      </form>
-
-      {error && (
-        <p className="error" style={{ color: "red", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
-
-      {matrix && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Matriz de Vandermonde
-          </h3>
-          <div
-            style={{
-              textAlign: "center",
-              overflowX: "auto",
-              fontSize: "1.2rem",
-            }}
-          >
-            <BlockMath>{generateMatrixLatex()}</BlockMath>
-          </div>
-        </>
-      )}
-
-      {coeffs && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Coeficientes Polinomiales
-          </h3>
-          <p
-            style={{
-              textAlign: "center",
-              fontFamily: "monospace",
-              fontSize: "1.2rem",
-            }}
-          >
-            [{coeffs.map((c) => formatNumber(c, 3)).join(", ")}]
-          </p>
-        </>
-      )}
-
-      {poly && (
-        <>
-          <h3 style={{ textAlign: "center", fontSize: "1.3rem" }}>
-            Polinomio de Vandermonde
-          </h3>
-          <div
-            style={{
-              textAlign: "center",
-              fontSize: "1.2rem",
-              marginTop: "0.5rem",
-              fontFamily: "monospace",
-            }}
-          >
-            <BlockMath>{poly}</BlockMath>
-          </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

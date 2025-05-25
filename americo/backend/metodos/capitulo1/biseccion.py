@@ -41,6 +41,13 @@ def metodo_biseccion(funcion_str, a, b, tol, max_iter):
         c = (a + b) / 2
         fc = f(c)
 
+        if f(a) * fc < 0:
+            b = c
+        else:
+            a = c
+
+        error = abs(b - a)
+
         tabla.append(
             {
                 "iteracion": iteracion + 1,
@@ -52,12 +59,6 @@ def metodo_biseccion(funcion_str, a, b, tol, max_iter):
             }
         )
 
-        if f(a) * fc < 0:
-            b = c
-        else:
-            a = c
-
-        error = abs(b - a)
         iteracion += 1
 
     # Datos para gráfica

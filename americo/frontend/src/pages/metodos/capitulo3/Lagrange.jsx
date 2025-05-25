@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "../assets/EstiloMetodos.css";
 
 export default function Lagrange() {
   const [n, setN] = useState(2);
   const [points, setPoints] = useState(Array(2).fill({ x: "", y: "" }));
-  const [lagrangeBases, setLagrangeBases] = useState([]); // Para Li(x)
-  const [expandedPolynomial, setExpandedPolynomial] = useState(""); // Polinomio completo tipo sumatoria
+  const [lagrangeBases, setLagrangeBases] = useState([]);
+  const [expandedPolynomial, setExpandedPolynomial] = useState("");
   const [error, setError] = useState("");
 
   const handleChangeN = (e) => {
@@ -50,141 +51,126 @@ export default function Lagrange() {
   };
 
   return (
-    <div
-      className="method-container"
-      style={{ maxWidth: "800px", margin: "0 auto", padding: "1rem" }}
-    >
-      <h2 style={{ textAlign: "center" }}>
-        Método de Interpolación de Lagrange
-      </h2>
+    <div className="biseccion-page">
+      <h1 className="titulo-principal">Método de Interpolación de Lagrange</h1>
 
-      <label
-        style={{ display: "block", textAlign: "center", marginBottom: "1rem" }}
-      >
-        Número de puntos (2-8):{" "}
-        <input
-          type="number"
-          value={n}
-          min="2"
-          max="8"
-          onChange={handleChangeN}
-        />
-      </label>
+      <div className="top-section">
+        <div className="formulario-contenedor">
+          <form className="formulario" onSubmit={handleSubmit}>
+            <label>
+              Número de puntos (2-8):
+              <input
+                type="number"
+                value={n}
+                min="2"
+                max="8"
+                onChange={handleChangeN}
+                required
+              />
+            </label>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        {points.map((point, idx) => (
-          <div
-            key={idx}
-            className="point-row"
-            style={{ marginBottom: "0.5rem" }}
-          >
-            <input
-              type="number"
-              placeholder={`x${idx}`}
-              value={point.x}
-              onChange={(e) => handleChangePoint(idx, "x", e.target.value)}
-              required
-              style={{ marginRight: "0.5rem" }}
-            />
-            <input
-              type="number"
-              placeholder={`y${idx}`}
-              value={point.y}
-              onChange={(e) => handleChangePoint(idx, "y", e.target.value)}
-              required
-            />
-          </div>
-        ))}
-        <button type="submit" style={{ marginTop: "1rem" }}>
-          Calcular
-        </button>
-      </form>
-
-      {error && (
-        <p className="error" style={{ color: "red", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
-
-      {/* Tabla de polinomios base Li(x) */}
-      {lagrangeBases.length > 0 && (
-        <div style={{ marginTop: "1.5rem" }}>
-          <h3 style={{ textAlign: "center", fontSize: "1.2rem" }}>
-            Polinomios de interpolación de Lagrange
-          </h3>
-          <table
-            border="1"
-            cellPadding="5"
-            style={{
-              borderCollapse: "collapse",
-              margin: "0 auto",
-              fontFamily: "monospace",
-              width: "100%",
-              maxWidth: "700px",
-            }}
-          >
-            <thead>
-              <tr>
-                <th style={{ fontSize: "1rem" }}>i</th>
-                <th style={{ fontSize: "1rem" }}>Li(x)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lagrangeBases.map((li, i) => (
-                <tr key={i}>
-                  <td
+            {points.map((point, idx) => (
+              <label key={idx}>
+                {idx === 0 && (
+                  <div
                     style={{
-                      textAlign: "center",
-                      fontSize: "1rem",
-                      fontWeight: "bold",
-                      padding: "8px",
+                      display: "grid",
+                      gridTemplateColumns: "200px 200px",
+                      gap: "1rem",
+                      marginBottom: "0.5rem",
                     }}
                   >
-                    {i}
-                  </td>
-                  <td style={{ fontSize: "1.2rem", padding: "8px" }}>{li}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                    <div>X:</div>
+                    <div>Y:</div>
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    type="number"
+                    placeholder={`x${idx}`}
+                    value={point.x}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "x", e.target.value)
+                    }
+                    required
+                  />
 
-      {expandedPolynomial && (
-        <>
-          <h3
-            style={{
-              textAlign: "center",
-              fontSize: "1.2rem",
-              marginTop: "2rem",
-              fontWeight: "bold",
-            }}
-          >
-            Polinomio de Lagrange Expandido
-          </h3>
-          <pre
-            style={{
-              textAlign: "center",
-              fontFamily: "monospace",
-              fontSize: "1.2rem",
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-              maxWidth: "700px",
-              margin: "0 auto",
-              lineHeight: "1.6",
-            }}
-          >
-            {expandedPolynomial}
-          </pre>
-        </>
-      )}
+                  <input
+                    type="number"
+                    placeholder={`y${idx}`}
+                    value={point.y}
+                    onChange={(e) =>
+                      handleChangePoint(idx, "y", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </label>
+            ))}
+
+            <button type="submit">Calcular</button>
+          </form>
+        </div>
+
+        {(lagrangeBases.length > 0 || expandedPolynomial) && (
+          <div className="resultado-container">
+            {lagrangeBases.length > 0 && (
+              <>
+                <h3>Polinomios de interpolación de Lagrange</h3>
+                <div className="tabla-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>i</th>
+                        <th>Li(x)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lagrangeBases.map((li, i) => (
+                        <tr key={i}>
+                          <td
+                            style={{ textAlign: "center", fontWeight: "700" }}
+                          >
+                            {i}
+                          </td>
+                          <td
+                            style={{
+                              fontFamily: "Consolas, monospace",
+                              textAlign: "center",
+                            }}
+                          >
+                            {li}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            {expandedPolynomial && (
+              <>
+                <h3>Polinomio de Lagrange Expandido</h3>
+                <pre
+                  style={{
+                    fontFamily: "Consolas, monospace",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    marginTop: "1rem",
+                    textAlign: "center",
+                    fontSize: "1rem",
+                  }}
+                >
+                  {expandedPolynomial}
+                </pre>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }
