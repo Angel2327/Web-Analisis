@@ -51,7 +51,9 @@ const GaussSeidel = () => {
       for (let j = 0; j < n; j++) {
         if (matrix[i][j] === "" || isNaN(matrix[i][j])) {
           setError(
-            `Valor inválido en la matriz A en la posición [${i + 1}][${j + 1}]`
+            `El campo de la matriz A en la posición [${i + 1}][${
+              j + 1
+            }] es obligatorio.`
           );
           return false;
         }
@@ -60,12 +62,14 @@ const GaussSeidel = () => {
 
     for (let i = 0; i < n; i++) {
       if (vectorB[i] === "" || isNaN(vectorB[i])) {
-        setError(`Valor inválido en el vector B en la posición [${i + 1}]`);
+        setError(
+          `El campo del vector B en la posición [${i + 1}] es obligatorio.`
+        );
         return false;
       }
       if (x0[i] === "" || isNaN(x0[i])) {
         setError(
-          `Valor inválido en el vector inicial x0 en la posición [${i + 1}]`
+          `El campo del vector x0 en la posición [${i + 1}] es obligatorio.`
         );
         return false;
       }
@@ -73,13 +77,13 @@ const GaussSeidel = () => {
 
     const tol = parseFloat(tolerance);
     if (isNaN(tol) || tol <= 0) {
-      setError("La tolerancia debe ser un número mayor que 0.");
+      setError('El campo "Tolerancia" es obligatorio.');
       return false;
     }
 
     const iter = parseInt(iterations);
     if (isNaN(iter) || iter <= 0) {
-      setError("El número de iteraciones debe ser un entero positivo.");
+      setError('El campo "Número de iteraciones" es obligatorio.');
       return false;
     }
 
@@ -119,28 +123,66 @@ const GaussSeidel = () => {
   };
 
   return (
-    <div className="biseccion-page">
+    <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Gauss-Seidel</h1>
       <div className="top-section">
         <form onSubmit={handleSubmit} className="formulario-contenedor-cap2">
           <div className="formulario">
-            <label>
-              Tamaño del sistema (2 a 7):
-              <input
-                type="number"
-                min="2"
-                max="7"
-                value={n}
-                onChange={(e) => handleTamañoChange(e.target.value)}
-              />
+            {/* Tamaño del sistema */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Define el tamaño del sistema de ecuaciones lineales.
+                        Debe ser un valor entre 2 y 7.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>3</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Tamaño del sistema:</span>
+              </div>
             </label>
+            <input
+              type="number"
+              min="2"
+              max="7"
+              value={n}
+              onChange={(e) => handleTamañoChange(e.target.value)}
+            />
 
             <div
               className="matrices-container"
-              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+              style={{
+                display: "flex",
+                gap: "20px",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
             >
               <div>
-                <h4>Matriz A:</h4>
+                <label className="label-con-icono">
+                  <div>
+                    <div className="tooltip-container">
+                      <div className="tooltip-icon">
+                        ?
+                        <div className="tooltip-text">
+                          <p className="tooltip-explicacion">
+                            Matriz de coeficientes del sistema Ax = b.
+                            Idealmente debe ser diagonalmente dominante para
+                            asegurar la convergencia.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <span>Matriz A:</span>
+                  </div>
+                </label>
                 <table className="matrix-input">
                   <tbody>
                     {matrix.map((row, i) => (
@@ -154,7 +196,6 @@ const GaussSeidel = () => {
                               onChange={(e) =>
                                 handleMatrixChange(i, j, e.target.value)
                               }
-                              required
                             />
                           </td>
                         ))}
@@ -166,10 +207,34 @@ const GaussSeidel = () => {
             </div>
             <div
               className="matrices-container"
-              style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}
+              style={{
+                display: "flex",
+                gap: "20px",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
             >
               <div>
-                <h4>Vector B:</h4>
+                {/* Vector b */}
+                <label className="label-con-icono">
+                  <div>
+                    <div className="tooltip-container">
+                      <div className="tooltip-icon">
+                        ?
+                        <div className="tooltip-text">
+                          <p className="tooltip-explicacion">
+                            Vector de constantes independientes (b) del sistema
+                            Ax = b.
+                          </p>
+                          <p className="tooltip-ejemplo">
+                            Ejemplo: <code>[1, 1, 1]</code>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <span>Vector B:</span>
+                  </div>
+                </label>
                 {vectorB.map((val, i) => (
                   <input
                     key={i}
@@ -179,18 +244,37 @@ const GaussSeidel = () => {
                     onChange={(e) =>
                       handleVectorChange(vectorB, i, e.target.value)
                     }
-                    required
                     style={{
                       display: "block",
                       marginBottom: "6px",
                       width: "70px",
+                      marginLeft: "25px",
                     }}
                   />
                 ))}
               </div>
 
               <div>
-                <h4>Vector x0:</h4>
+                {/* Vector x0 */}
+                <label className="label-con-icono">
+                  <div>
+                    <div className="tooltip-container">
+                      <div className="tooltip-icon">
+                        ?
+                        <div className="tooltip-text">
+                          <p className="tooltip-explicacion">
+                            Valor inicial para la iteración. Es recomendable
+                            usar ceros o una estimación cercana.
+                          </p>
+                          <p className="tooltip-ejemplo">
+                            Ejemplo: <code>[0, 0, 0]</code>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <span>Vector x0:</span>
+                  </div>
+                </label>
                 {x0.map((val, i) => (
                   <input
                     key={i}
@@ -198,55 +282,100 @@ const GaussSeidel = () => {
                     step="any"
                     value={val}
                     onChange={(e) => handleVectorChange(x0, i, e.target.value)}
-                    required
                     style={{
                       display: "block",
                       marginBottom: "6px",
                       width: "70px",
+                      marginLeft: "25px",
                     }}
                   />
                 ))}
               </div>
             </div>
 
-            <label>
-              Tolerancia:
-              <input
-                type="number"
-                step="any"
-                value={tolerance}
-                onChange={(e) => setTolerance(e.target.value)}
-                required
-              />
+            {/* Tolerancia */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Define el error permitido. Debe ser un número positivo
+                        entre <code>1e-12</code> y <code>1e-1</code>.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>1e-5</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Tolerancia:</span>
+              </div>
             </label>
+            <input
+              type="number"
+              step="any"
+              value={tolerance}
+              onChange={(e) => setTolerance(e.target.value)}
+            />
 
-            <label>
-              Máximo número de iteraciones:
-              <input
-                type="number"
-                value={iterations}
-                onChange={(e) => setIterations(e.target.value)}
-                required
-              />
+            {/* Iteraciones */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Número máximo de iteraciones permitidas. Un valor entre
+                        1 y 100 es común.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>50</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Número de iteraciones:</span>
+              </div>
             </label>
+            <input
+              type="number"
+              value={iterations}
+              onChange={(e) => setIterations(e.target.value)}
+            />
 
-            <label>
-              Norma:
-              <select value={norm} onChange={handleNormChange}>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="inf">Infinita</option>
-              </select>
+            {/* Norma */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Tipo de norma usada para calcular el error:{" "}
+                        <strong>1</strong> (norma uno), <strong>2</strong>{" "}
+                        (euclidiana), <strong>inf</strong> (infinita), etc.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Norma:</span>
+              </div>
             </label>
+            <select value={norm} onChange={handleNormChange}>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="inf">Infinita</option>
+            </select>
 
-            <button type="submit" className="informe-btn">
-              Ejecutar
-            </button>
+            {error && <p className="error">{error}</p>}
+
+            <button type="submit">Calcular</button>
           </div>
         </form>
-
-        {error && <p className="error">{error}</p>}
 
         {resultado && (
           <div className="resultado-container">

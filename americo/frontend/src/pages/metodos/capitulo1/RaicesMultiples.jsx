@@ -14,6 +14,27 @@ function RaicesMultiples() {
   const [resultado, setResultado] = useState(null);
   const [error, setError] = useState(null);
   const [plotData, setPlotData] = useState(null);
+  const [mensajeDerivada, setMensajeDerivada] = useState("");
+  const [showDerivada, setShowDerivada] = useState(false);
+  const [errorFuncion, setErrorFuncion] = useState("");
+
+  const obtenerDerivada = async () => {
+    if (!params.funcion.trim()) {
+      setErrorFuncion("Por favor ingrese la función para obtener la derivada.");
+      return;
+    }
+    setErrorFuncion("");
+    try {
+      const res = await axios.post("http://localhost:8000/api/derivada", {
+        funcion: params.funcion,
+      });
+      setMensajeDerivada(res.data.derivada_mensaje);
+      setShowDerivada(true);
+    } catch (err) {
+      setMensajeDerivada("Error al obtener la derivada.");
+      setShowDerivada(true);
+    }
+  };
 
   const handleChange = (e) => {
     setParams({ ...params, [e.target.name]: e.target.value });
@@ -84,28 +105,101 @@ function RaicesMultiples() {
   };
 
   return (
-    <div className="biseccion-page">
+    <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Raíces Múltiples</h1>
       <div className="top-section">
         <div className="formulario-contenedor">
           <form className="formulario" onSubmit={handleSubmit}>
-            <label>Función f(x):</label>
-            <input
-              type="text"
-              name="funcion"
-              value={params.funcion}
-              onChange={handleChange}
-              placeholder="Ej: exp(x) - x - 1"
-            />
-            <label>Valor inicial x0:</label>
+            {/* Función */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        La función debe ser continua y diferenciable. Además, la
+                        función evaluada en los extremos del intervalo debe
+                        tener signos opuestos.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>log(sin(x)^2 + 1)-(1/2)</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Función:</span>
+              </div>
+            </label>
+            <div>
+              <input
+                type="text"
+                name="funcion"
+                value={params.funcion}
+                onChange={handleChange}
+                placeholder="Ej: log(sin(x)^2 + 1)-(1/2)"
+                style={{ width: "85%" }}
+              />
+              <button
+                type="button"
+                onClick={obtenerDerivada}
+                style={{
+                  marginLeft: "10px",
+                  padding: "10px",
+                  backgroundColor: "#3498db",
+                }}
+              >
+                D
+              </button>
+              {errorFuncion && <p className="error">{errorFuncion}</p>}
+            </div>
+            {/* x0 */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Valor inicial cercano a la raíz buscada.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>0.5</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Valor inicial (x0):</span>
+              </div>
+            </label>
             <input
               type="number"
               name="x0"
               value={params.x0}
               onChange={handleChange}
-              placeholder="Ej: 1"
+              placeholder="Ej: 0.5"
             />
-            <label>Tolerancia:</label>
+            {/* Tolerancia */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        La tolerancia define el error permitido. Debe ser un
+                        número positivo entre <code>1e-12</code> y{" "}
+                        <code>1e-1</code>.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>1e-7</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Tolerancia:</span>
+              </div>
+            </label>
             <input
               type="text"
               name="tolerancia"
@@ -113,7 +207,28 @@ function RaicesMultiples() {
               onChange={handleChange}
               placeholder="Ej: 1e-7"
             />
-            <label>Número de iteraciones (100 Max):</label>
+
+            {/* Iteraciones */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Número entero positivo que define el máximo de
+                        iteraciones permitidas. Rango válido entre{" "}
+                        <code>1</code> y <code>100</code>.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>100</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Número de iteraciones:</span>
+              </div>
+            </label>
             <input
               type="number"
               name="max_iter"
@@ -122,6 +237,9 @@ function RaicesMultiples() {
               max={100}
               placeholder="Ej: 100"
             />
+
+            {error && <p className="error">{error}</p>}
+
             <button type="submit">Calcular</button>
           </form>
         </div>
@@ -168,8 +286,6 @@ function RaicesMultiples() {
         )}
       </div>
 
-      {error && <p className="error">{error}</p>}
-
       {plotData && (
         <div className="plot-container">
           <div className="plot-content">
@@ -194,6 +310,83 @@ function RaicesMultiples() {
               style={{ width: "100%", height: "100%", maxHeight: "450px" }}
               useResizeHandler={true}
             />
+          </div>
+        </div>
+      )}
+      {showDerivada && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999,
+          }}
+          onClick={() => setShowDerivada(false)}
+        >
+          <div
+            style={{
+              position: "relative",
+              backgroundColor: "#fdfdfd",
+              padding: "30px",
+              borderRadius: "16px",
+              maxWidth: "500px",
+              boxShadow: "0px 10px 25px rgba(0, 0, 0, 0.15)",
+              border: "1px solid #ddd",
+              fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+              color: "#333",
+              textAlign: "center",
+              width: "fit-content",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowDerivada(false)}
+              style={{
+                position: "absolute",
+                top: "15px",
+                right: "15px",
+                background: "transparent",
+                border: "none",
+                fontSize: "12px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                color: "#999",
+              }}
+              title="Cerrar"
+            >
+              ❌
+            </button>
+
+            <h3
+              style={{
+                marginBottom: "15px",
+                fontSize: "1.5rem",
+                color: "#2c3e50",
+              }}
+            >
+              Derivada de la función
+            </h3>
+            <p
+              style={{
+                marginBottom: "20px",
+                fontSize: "1.2rem",
+                fontWeight: "600",
+                color: "#2c3e50",
+                backgroundColor: "#ecf0f1",
+                padding: "12px 18px",
+                borderRadius: "10px",
+                border: "1px solid #dcdde1",
+                wordBreak: "break-word",
+              }}
+            >
+              {mensajeDerivada}
+            </p>
           </div>
         </div>
       )}

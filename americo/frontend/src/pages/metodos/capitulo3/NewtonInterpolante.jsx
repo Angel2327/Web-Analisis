@@ -34,13 +34,72 @@ export default function NewtonInterpolante() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar campos vacíos en x
+    for (let i = 0; i < points.length; i++) {
+      if (points[i].x === "") {
+        setError(`El campo "x${i}" es obligatorio.`);
+        setDifferenceTable(null);
+        setCoeffs(null);
+        return;
+      }
+    }
+
+    // Validar campos vacíos en y
+    for (let i = 0; i < points.length; i++) {
+      if (points[i].y === "") {
+        setError(`El campo "y${i}" es obligatorio.`);
+        setDifferenceTable(null);
+        setCoeffs(null);
+        return;
+      }
+    }
+
+    // Validar que x sean números válidos
+    for (let i = 0; i < points.length; i++) {
+      if (isNaN(parseFloat(points[i].x))) {
+        setError(`El campo "x${i}" debe ser un número válido.`);
+        setDifferenceTable(null);
+        setCoeffs(null);
+        return;
+      }
+    }
+
+    // Validar que y sean números válidos
+    for (let i = 0; i < points.length; i++) {
+      if (isNaN(parseFloat(points[i].y))) {
+        setError(`El campo "y${i}" debe ser un número válido.`);
+        setDifferenceTable(null);
+        setCoeffs(null);
+        return;
+      }
+    }
+
+    // Validar que los valores x sean únicos
+    const xValues = points.map((p) => p.x);
+    const xSet = new Set(xValues);
+    if (xSet.size !== xValues.length) {
+      setError("Los valores de X deben ser únicos, hay duplicados.");
+      setDifferenceTable(null);
+      setCoeffs(null);
+      return;
+    }
+
+    // Validar que los valores y sean únicos
+    const yValues = points.map((p) => p.y);
+    const ySet = new Set(yValues);
+    if (ySet.size !== yValues.length) {
+      setError("Los valores de Y deben ser únicos, hay duplicados.");
+      setDifferenceTable(null);
+      setCoeffs(null);
+      return;
+    }
+
+    // Si pasa todas las validaciones
     try {
       const xPoints = points.map((p) => parseFloat(p.x));
       const yPoints = points.map((p) => parseFloat(p.y));
-      if (xPoints.some(isNaN) || yPoints.some(isNaN)) {
-        setError("Todos los valores deben ser numéricos");
-        return;
-      }
+
       const response = await axios.post(
         "http://127.0.0.1:8000/api/newton-interpolante",
         { xPoints, yPoints }
@@ -78,22 +137,38 @@ export default function NewtonInterpolante() {
   };
 
   return (
-    <div className="biseccion-page">
+    <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Interpolación de Newton</h1>
-
       <div className="top-section">
-        <div className="formulario-contenedor">
+        <div className="formulario-contenedor-cap3">
           <form className="formulario" onSubmit={handleSubmit}>
-            <label>
-              Número de puntos (2-8):
-              <input
-                type="number"
-                value={n}
-                min="2"
-                max="8"
-                onChange={handleChangeN}
-              />
+            {/* Número de puntos */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Define el numero de puntos para los vectores X y Y. Debe
+                        ser un valor entre 2 y 8.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>3</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Número de puntos:</span>
+              </div>
             </label>
+            <input
+              type="number"
+              value={n}
+              min="2"
+              max="8"
+              onChange={handleChangeN}
+            />
 
             {points.map((point, idx) => (
               <label key={idx}>
@@ -104,13 +179,52 @@ export default function NewtonInterpolante() {
                       gridTemplateColumns: "200px 200px",
                       gap: "1rem",
                       marginBottom: "0.5rem",
+                      justifyContent: "center",
                     }}
                   >
-                    <div>X:</div>
-                    <div>Y:</div>
+                    <div>
+                      <div className="tooltip-container">
+                        <div className="tooltip-icon">
+                          ?
+                          <div className="tooltip-text">
+                            <p className="tooltip-explicacion">
+                              Vector de puntos X. No debe tener puntos
+                              duplicados, deben ser valores unicos.
+                            </p>
+                            <p className="tooltip-ejemplo">
+                              Ejemplo: <code>[1, 2, 3]</code>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <span>X:</span>
+                    </div>
+                    <div>
+                      <div className="tooltip-container">
+                        <div className="tooltip-icon">
+                          ?
+                          <div className="tooltip-text">
+                            <p className="tooltip-explicacion">
+                              Vector de puntos Y. No debe tener puntos
+                              duplicados, deben ser valores unicos.
+                            </p>
+                            <p className="tooltip-ejemplo">
+                              Ejemplo: <code>[1, 2, 3]</code>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <span>Y:</span>
+                    </div>
                   </div>
                 )}
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    justifyContent: "center",
+                  }}
+                >
                   <input
                     type="number"
                     placeholder={`x${idx}`}
@@ -118,7 +232,6 @@ export default function NewtonInterpolante() {
                     onChange={(e) =>
                       handleChangePoint(idx, "x", e.target.value)
                     }
-                    required
                   />
 
                   <input
@@ -128,16 +241,21 @@ export default function NewtonInterpolante() {
                     onChange={(e) =>
                       handleChangePoint(idx, "y", e.target.value)
                     }
-                    required
                   />
                 </div>
               </label>
             ))}
 
+            {error && (
+              <div className="error" style={{ marginBottom: "1rem" }}>
+                {error.split("\n").map((err, idx) => (
+                  <p key={idx}>{err}</p>
+                ))}
+              </div>
+            )}
+
             <button type="submit">Calcular</button>
           </form>
-
-          {error && <p className="error">{error}</p>}
         </div>
 
         {(differenceTable || coeffs) && (

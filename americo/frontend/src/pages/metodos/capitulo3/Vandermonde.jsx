@@ -10,7 +10,7 @@ export default function Vandermonde() {
   const [matrix, setMatrix] = useState(null);
   const [coeffs, setCoeffs] = useState(null);
   const [poly, setPoly] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState([]); // Cambié a array para múltiples mensajes
 
   function formatNumber(num, maxDecimals = 6, fixed = false) {
     if (fixed) {
@@ -28,7 +28,7 @@ export default function Vandermonde() {
     setMatrix(null);
     setCoeffs(null);
     setPoly("");
-    setError("");
+    setErrors([]);
   };
 
   const handleChangePoint = (index, field, value) => {
@@ -39,13 +39,59 @@ export default function Vandermonde() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let errorMsg = "";
+
+    // Validar n
+    if (!n || n < 2 || n > 8) {
+      errorMsg = "El número de puntos debe ser un valor entre 2 y 8.";
+    }
+    // Validar puntos x e y secuencialmente
+    else {
+      for (let i = 0; i < points.length; i++) {
+        const point = points[i];
+        if (point.x === "" || point.x === null || point.x === undefined) {
+          errorMsg = `El campo "x${i}" es obligatorio.`;
+          break;
+        } else if (isNaN(parseFloat(point.x))) {
+          errorMsg = `El campo "x${i}" debe ser un número válido.`;
+          break;
+        }
+        if (point.y === "" || point.y === null || point.y === undefined) {
+          errorMsg = `El campo "y${i}" es obligatorio.`;
+          break;
+        } else if (isNaN(parseFloat(point.y))) {
+          errorMsg = `El campo "y${i}" debe ser un número válido.`;
+          break;
+        }
+      }
+
+      if (!errorMsg) {
+        const xValues = points.map((p) => parseFloat(p.x));
+        const xSet = new Set(xValues);
+        const yValues = points.map((p) => parseFloat(p.y));
+        const ySet = new Set(yValues);
+        // Validación duplicados en X
+        if (xSet.size !== xValues.length) {
+          setErrors(["Los valores de X no deben repetirse."]);
+          return;
+        }
+        // Validación duplicados en Y
+        if (ySet.size !== yValues.length) {
+          setErrors(["Los valores de Y no deben repetirse."]);
+          return;
+        }
+      }
+    }
+
+    if (errorMsg) {
+      setErrors([errorMsg]);
+      return;
+    }
+
+    // Si pasó todas las validaciones, procedemos con la petición
     try {
       const xPoints = points.map((p) => parseFloat(p.x));
       const yPoints = points.map((p) => parseFloat(p.y));
-      if (xPoints.some(isNaN) || yPoints.some(isNaN)) {
-        setError("Todos los valores deben ser numéricos");
-        return;
-      }
       const response = await axios.post(
         "http://127.0.0.1:8000/api/vandermonde",
         { xPoints, yPoints }
@@ -72,11 +118,11 @@ export default function Vandermonde() {
       setMatrix(reversedMatrix);
       setCoeffs(reversedCoeffs);
       setPoly(formattedPoly);
-      setError("");
+      setErrors([]);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Error al conectar con el servidor."
-      );
+      setErrors([
+        err.response?.data?.message || "Error al conectar con el servidor.",
+      ]);
     }
   };
 
@@ -110,24 +156,40 @@ export default function Vandermonde() {
   };
 
   return (
-    <div className="biseccion-page">
+    <div className="metodo-principal-page">
       <h1 className="titulo-principal">
         Método de Interpolación de Vandermonde
       </h1>
       <div className="top-section">
         <div className="formulario-contenedor-cap3">
           <form className="formulario" onSubmit={handleSubmit}>
-            <label>
-              Número de puntos (2-8):
-              <input
-                type="number"
-                value={n}
-                min="2"
-                max="8"
-                onChange={handleChangeN}
-                required
-              />
+            {/* Número de puntos */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Define el numero de puntos para los vectores X y Y. Debe
+                        ser un valor entre 2 y 8.
+                      </p>
+                      <p className="tooltip-ejemplo">
+                        Ejemplo: <code>3</code>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Número de puntos:</span>
+              </div>
             </label>
+            <input
+              type="number"
+              value={n}
+              min="2"
+              max="8"
+              onChange={handleChangeN}
+            />
 
             {points.map((point, idx) => (
               <label key={idx}>
@@ -138,13 +200,52 @@ export default function Vandermonde() {
                       gridTemplateColumns: "200px 200px",
                       gap: "1rem",
                       marginBottom: "0.5rem",
+                      justifyContent: "center",
                     }}
                   >
-                    <div>X:</div>
-                    <div>Y:</div>
+                    <div>
+                      <div className="tooltip-container">
+                        <div className="tooltip-icon">
+                          ?
+                          <div className="tooltip-text">
+                            <p className="tooltip-explicacion">
+                              Vector de puntos X. No debe tener puntos
+                              duplicados, deben ser valores únicos.
+                            </p>
+                            <p className="tooltip-ejemplo">
+                              Ejemplo: <code>[1, 2, 3]</code>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <span>X:</span>
+                    </div>
+                    <div>
+                      <div className="tooltip-container">
+                        <div className="tooltip-icon">
+                          ?
+                          <div className="tooltip-text">
+                            <p className="tooltip-explicacion">
+                              Vector de puntos Y. No debe tener puntos
+                              duplicados, deben ser valores únicos.
+                            </p>
+                            <p className="tooltip-ejemplo">
+                              Ejemplo: <code>[1, 2, 3]</code>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <span>Y:</span>
+                    </div>
                   </div>
                 )}
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    justifyContent: "center",
+                  }}
+                >
                   <input
                     type="number"
                     placeholder={`x${idx}`}
@@ -152,7 +253,6 @@ export default function Vandermonde() {
                     onChange={(e) =>
                       handleChangePoint(idx, "x", e.target.value)
                     }
-                    required
                   />
 
                   <input
@@ -162,18 +262,25 @@ export default function Vandermonde() {
                     onChange={(e) =>
                       handleChangePoint(idx, "y", e.target.value)
                     }
-                    required
                   />
                 </div>
               </label>
             ))}
 
+            {/* Aquí mostramos los errores arriba del botón */}
+            {errors.length > 0 && (
+              <div className="error" style={{ marginBottom: "1rem" }}>
+                {errors.map((errMsg, i) => (
+                  <p key={i}>{errMsg}</p>
+                ))}
+              </div>
+            )}
+
             <button type="submit">Calcular</button>
           </form>
-
-          {error && <p className="error">{error}</p>}
         </div>
 
+        {/* Resultado */}
         {(matrix || coeffs || poly) && (
           <div className="resultado-container-cap3">
             {matrix && (

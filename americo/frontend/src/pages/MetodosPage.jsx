@@ -9,80 +9,66 @@ const MetodosPage = () => {
   };
 
   return (
-    <>
-      <div className="metodos-container">
-        <h2>Explora los Métodos</h2>
+    <div className="metodos-container">
+      <h2 className="metodos-title">Explora los Métodos</h2>
 
-        <div className="dropdown">
-          <button onClick={() => toggle("c1")} className="dropdown-btn">
-            Capítulo 1
+      {[
+        {
+          id: "c1",
+          title: "Capítulo 1",
+          links: [
+            { href: "/metodo/biseccion", text: "Bisección" },
+            { href: "/metodo/regla-falsa", text: "Regla Falsa" },
+            { href: "/metodo/punto-fijo", text: "Punto Fijo" },
+            { href: "/metodo/newton", text: "Newton" },
+            { href: "/metodo/secante", text: "Secante" },
+            { href: "/metodo/raices-multiples", text: "Raíces Múltiples" },
+          ],
+        },
+        {
+          id: "c2",
+          title: "Capítulo 2",
+          links: [
+            { href: "/metodo/jacobi", text: "Jacobi" },
+            { href: "/metodo/gauss-seidel", text: "Gauss-Seidel" },
+            { href: "/metodo/sor", text: "SOR" },
+          ],
+        },
+        {
+          id: "c3",
+          title: "Capítulo 3",
+          links: [
+            { href: "/metodo/vandermonde", text: "Vandermonde" },
+            {
+              href: "/metodo/newton-interpolante",
+              text: "Newton Interpolante",
+            },
+            { href: "/metodo/lagrange", text: "Lagrange" },
+            { href: "/metodo/spline", text: "Spline (Lineal y Cúbico)" },
+          ],
+        },
+      ].map((capitulo) => (
+        <div key={capitulo.id} className="dropdown-card">
+          <button
+            onClick={() => toggle(capitulo.id)}
+            className={`dropdown-btn ${open[capitulo.id] ? "open" : ""}`}
+          >
+            {capitulo.title}
           </button>
-          {open.c1 && (
+          {open[capitulo.id] && (
             <ul className="dropdown-list">
-              <li>
-                <a href="/metodo/biseccion">Bisección</a>
-              </li>
-              <li>
-                <a href="/metodo/regla-falsa">Regla Falsa</a>
-              </li>
-              <li>
-                <a href="/metodo/punto-fijo">Punto Fijo</a>
-              </li>
-              <li>
-                <a href="/metodo/newton">Newton</a>
-              </li>
-              <li>
-                <a href="/metodo/secante">Secante</a>
-              </li>
-              <li>
-                <a href="/metodo/raices-multiples">Raíces múltiples</a>
-              </li>
+              {capitulo.links.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="dropdown-link">
+                    {link.text}
+                  </a>
+                </li>
+              ))}
             </ul>
           )}
         </div>
-
-        <div className="dropdown">
-          <button onClick={() => toggle("c2")} className="dropdown-btn">
-            Capítulo 2
-          </button>
-          {open.c2 && (
-            <ul className="dropdown-list">
-              <li>
-                <a href="/metodo/jacobi">Jacobi</a>
-              </li>
-              <li>
-                <a href="/metodo/gauss-seidel">Gauss-Seidel</a>
-              </li>
-              <li>
-                <a href="/metodo/sor">SOR</a>
-              </li>
-            </ul>
-          )}
-        </div>
-
-        <div className="dropdown">
-          <button onClick={() => toggle("c3")} className="dropdown-btn">
-            Capítulo 3
-          </button>
-          {open.c3 && (
-            <ul className="dropdown-list">
-              <li>
-                <a href="/metodo/vandermonde">Vandermonde</a>
-              </li>
-              <li>
-                <a href="/metodo/newton-interpolante">Newton Interpolante</a>
-              </li>
-              <li>
-                <a href="/metodo/lagrange">Lagrange</a>
-              </li>
-              <li>
-                <a href="/metodo/spline">Spline (Lineal y Cúbico)</a>
-              </li>
-            </ul>
-          )}
-        </div>
-      </div>
-    </>
+      ))}
+    </div>
   );
 };
 

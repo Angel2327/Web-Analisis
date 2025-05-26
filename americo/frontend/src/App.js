@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
+import GraficaFuncion from "./components/GraficarFuncion";
 import MetodosPage from './pages/MetodosPage';
 import Biseccion from './pages/metodos/capitulo1/Biseccion';
 import ReglaFalsa from './pages/metodos/capitulo1/ReglaFalsa';
@@ -24,6 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/metodos" element={<MetodosPage />} />
+        <Route path="/grafica-funcion" element={<GraficaFuncion />} />
         <Route path="/about" element={<div>Acerca de</div>} />
         <Route path="/help" element={<div>Ayuda</div>} />
         <Route path="/metodo/biseccion" element={<Biseccion />} />

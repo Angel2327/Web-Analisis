@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sympy as sp
+from components.graficar_funcion import graficar_funcion
 from metodos.capitulo1.biseccion import metodo_biseccion
 from metodos.capitulo1.regla_falsa import metodo_regla_falsa
 from metodos.capitulo1.punto_fijo import metodo_punto_fijo
@@ -34,6 +35,22 @@ def derivada():
     except Exception:
         mensaje = "No se pudo calcular la derivada."
     return jsonify({"derivada_mensaje": mensaje})
+
+
+@app.route("/api/graficar-funcion", methods=["POST"])
+def graficar_funcion_endpoint():
+    try:
+        data = request.get_json()
+        funcion_str = data.get("funcion")
+
+        if not funcion_str:
+            return jsonify({"message": "Debe proporcionar una función válida"}), 400
+
+        resultado, codigo = graficar_funcion(funcion_str)
+        return jsonify(resultado), codigo
+
+    except Exception as e:
+        return jsonify({"message": f"Error interno: {str(e)}"}), 500
 
 
 @app.route("/api/biseccion", methods=["POST"])

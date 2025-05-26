@@ -12,8 +12,11 @@ const Navbar = () => {
         <Link to="/metodos" className="navbar-button">
           Métodos
         </Link>
+        <Link to="/grafica-funcion" className="navbar-button">
+          Graficar
+        </Link>
         <Link to="/about" className="navbar-button">
-          Sobre Nosotros
+          Sobre AMerico
         </Link>
         <Link to="/help" className="navbar-button">
           Ayuda

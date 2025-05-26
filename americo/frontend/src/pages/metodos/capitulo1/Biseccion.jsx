@@ -131,7 +131,7 @@ function Biseccion() {
   };
 
   return (
-    <div className="biseccion-page">
+    <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Bisección</h1>
       <div className="top-section">
         <div className="formulario-contenedor">
@@ -285,7 +285,7 @@ function Biseccion() {
                     </div>
                   </div>
                 </div>
-                <span>Número de iteraciones (100 Max):</span>
+                <span>Número de iteraciones:</span>
               </div>
             </label>
             <input

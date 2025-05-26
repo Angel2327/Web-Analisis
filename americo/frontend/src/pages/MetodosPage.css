@@ -1,36 +1,74 @@
 .metodos-container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.dropdown {
-  margin-bottom: 20px;
+.metodos-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+}
+
+.dropdown-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .dropdown-btn {
-  background-color: #00bcd4;
-  color: white;
-  padding: 10px 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 18px;
   width: 100%;
+  background: #059669;
+  color: white;
+  padding: 1rem;
+  font-size: 1.2rem;
   text-align: left;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.3s ease;
 }
 
 .dropdown-btn:hover {
-  background-color: #008c9e;
+  background: #0dc389;
+}
+
+.dropdown-btn.open {
+  border-bottom: 1px solid #ddd;
 }
 
 .dropdown-list {
-  list-style-type: none;
-  margin-top: 8px;
-  padding-left: 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .dropdown-list li {
-  margin: 6px 0;
-  font-size: 16px;
+  margin: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.dropdown-list li:last-child {
+  border-bottom: none;
+}
+
+.dropdown-link {
+  display: block;
+  padding: 1rem 1.5rem;
+  text-decoration: none;
+  color: #2c3e50;
+  font-weight: 500;
+  font-size: 1.05rem;
+  text-align: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.dropdown-link:hover {
+  background-color: #f0f8ff;
+  color: #2980b9;
 }

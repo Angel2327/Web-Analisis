@@ -6,11 +6,6 @@ def metodo_vandermonde(xPoints, yPoints):
     if len(xPoints) != len(yPoints):
         raise ValueError("Los vectores X y Y deben tener la misma longitud")
 
-    if len(set(xPoints)) != len(xPoints):
-        raise ValueError(
-            "Los valores de X deben ser únicos para generar la matriz de Vandermonde"
-        )
-
     xPoints = np.array(xPoints, dtype=float)
     yPoints = np.array(yPoints, dtype=float)
 
