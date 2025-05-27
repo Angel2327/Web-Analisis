@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Plot from "react-plotly.js";
 import "../assets/EstiloMetodos.css";
 
 export default function Spline() {
@@ -7,7 +8,7 @@ export default function Spline() {
   const [points, setPoints] = useState(Array(2).fill({ x: "", y: "" }));
   const [tipo, setTipo] = useState("lineal");
   const [splines, setSplines] = useState(null);
-  const [error, setError] = useState(""); // Solo un error visible
+  const [error, setError] = useState("");
 
   const handleChangeN = (e) => {
     const newN = Math.min(Math.max(parseInt(e.target.value), 2), 8);
@@ -26,7 +27,6 @@ export default function Spline() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación 1: Campos vacíos X (de arriba hacia abajo)
     for (let i = 0; i < points.length; i++) {
       if (
         points[i].x === "" ||
@@ -39,7 +39,6 @@ export default function Spline() {
       }
     }
 
-    // Validación 2: Campos vacíos Y (de arriba hacia abajo)
     for (let i = 0; i < points.length; i++) {
       if (
         points[i].y === "" ||
@@ -52,13 +51,11 @@ export default function Spline() {
       }
     }
 
-    // Convertir a números
     const puntosNum = points.map((p) => ({
       x: parseFloat(p.x),
       y: parseFloat(p.y),
     }));
 
-    // Validación 3: Todos deben ser números
     for (let i = 0; i < puntosNum.length; i++) {
       if (isNaN(puntosNum[i].x) || isNaN(puntosNum[i].y)) {
         setError("Todos los valores deben ser numéricos.");
@@ -67,7 +64,6 @@ export default function Spline() {
       }
     }
 
-    // Validación 4: No duplicados en X
     const xValues = puntosNum.map((p) => p.x);
     const xSet = new Set(xValues);
     if (xSet.size !== xValues.length) {
@@ -76,7 +72,6 @@ export default function Spline() {
       return;
     }
 
-    // Validación 5: No duplicados en Y
     const yValues = puntosNum.map((p) => p.y);
     const ySet = new Set(yValues);
     if (ySet.size !== yValues.length) {
@@ -85,7 +80,6 @@ export default function Spline() {
       return;
     }
 
-    // Si pasa todas las validaciones, limpiar error
     setError("");
 
     try {
@@ -103,13 +97,47 @@ export default function Spline() {
         setError(response.data.error);
         setSplines(null);
       } else {
-        setSplines(response.data);
+        setSplines({ ...response.data, puntosOrdenados });
         setError("");
       }
     } catch (err) {
       setError("Error al conectar con el servidor.");
       setSplines(null);
     }
+  };
+
+  // Generar datos para graficar spline
+  const getPlotData = () => {
+    if (!splines) return [];
+
+    const xPoints = splines.puntosOrdenados.map((p) => p.x);
+    const yPoints = splines.puntosOrdenados.map((p) => p.y);
+
+    // Puntos originales
+    const tracePoints = {
+      x: xPoints,
+      y: yPoints,
+      mode: "markers",
+      type: "scatter",
+      name: "Puntos originales",
+      marker: { color: "red", size: 8 },
+    };
+
+    // Para el spline, el backend debería devolver puntos para la curva
+    // Supongamos que splines.curvaX y splines.curvaY son arrays de puntos para la curva
+    const traceSpline =
+      splines.curvaX && splines.curvaY
+        ? {
+            x: splines.curvaX,
+            y: splines.curvaY,
+            mode: "lines",
+            type: "scatter",
+            name: tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico",
+            line: { color: "blue" },
+          }
+        : null;
+
+    return traceSpline ? [tracePoints, traceSpline] : [tracePoints];
   };
 
   return (
@@ -245,7 +273,6 @@ export default function Spline() {
               </label>
             ))}
 
-            {/* Mostrar solo un error a la vez */}
             {error && <p className="error">{error}</p>}
 
             <button type="submit">Calcular</button>
@@ -254,9 +281,9 @@ export default function Spline() {
 
         {splines && (
           <div className="resultado-container">
-            <h3>{tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico"}</h3>
+            <h2>{tipo === "lineal" ? "Spline Lineal" : "Spline Cúbico"}</h2>
 
-            <h4>Tabla de Coeficientes</h4>
+            <h3>Tabla de Coeficientes</h3>
             <div className="tabla-scroll">
               <table>
                 <thead>
@@ -274,12 +301,7 @@ export default function Spline() {
                 </thead>
                 <tbody>
                   {splines?.coeficientes?.map((item) => (
-                    <tr
-                      key={item.i}
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
+                    <tr key={item.i} style={{ textAlign: "center" }}>
                       <td>{item.i}</td>
                       <td>{item.coef1}</td>
                       <td>{item.coef2}</td>
@@ -295,7 +317,7 @@ export default function Spline() {
               </table>
             </div>
 
-            <h4 style={{ marginTop: "1rem" }}>Tabla de Rastreadores</h4>
+            <h3 style={{ marginTop: "1rem" }}>Tabla de Rastreadores</h3>
             <div className="tabla-scroll">
               <table>
                 <thead>
@@ -306,12 +328,7 @@ export default function Spline() {
                 </thead>
                 <tbody>
                   {splines?.coeficientes?.map((item) => (
-                    <tr
-                      key={item.i}
-                      style={{
-                        textAlign: "center",
-                      }}
-                    >
+                    <tr key={item.i} style={{ textAlign: "center" }}>
                       <td>{item.i}</td>
                       <td>{item.formato}</td>
                     </tr>
@@ -319,6 +336,17 @@ export default function Spline() {
                 </tbody>
               </table>
             </div>
+            <h3>Gráfica del Polinomio Interpolado de Spline</h3>
+            <Plot
+              data={getPlotData()}
+              layout={{
+                width: 800,
+                height: 600,
+                title: "Gráfica de Interpolación Spline",
+                xaxis: { title: "X" },
+                yaxis: { title: "Y" },
+              }}
+            />
           </div>
         )}
       </div>

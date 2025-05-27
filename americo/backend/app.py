@@ -42,11 +42,14 @@ def graficar_funcion_endpoint():
     try:
         data = request.get_json()
         funcion_str = data.get("funcion")
+        x_min = data.get("x_min", -10)
+        x_max = data.get("x_max", 10)
+        puntos = data.get("puntos", 500)
 
         if not funcion_str:
             return jsonify({"message": "Debe proporcionar una función válida"}), 400
 
-        resultado, codigo = graficar_funcion(funcion_str)
+        resultado, codigo = graficar_funcion(funcion_str, x_min, x_max, puntos)
         return jsonify(resultado), codigo
 
     except Exception as e:

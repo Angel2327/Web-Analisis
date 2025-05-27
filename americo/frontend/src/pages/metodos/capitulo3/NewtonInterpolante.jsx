@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Plot from "react-plotly.js";
 import "../assets/EstiloMetodos.css";
 
 export default function NewtonInterpolante() {
@@ -35,7 +36,6 @@ export default function NewtonInterpolante() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar campos vacíos en x
     for (let i = 0; i < points.length; i++) {
       if (points[i].x === "") {
         setError(`El campo "x${i}" es obligatorio.`);
@@ -45,7 +45,6 @@ export default function NewtonInterpolante() {
       }
     }
 
-    // Validar campos vacíos en y
     for (let i = 0; i < points.length; i++) {
       if (points[i].y === "") {
         setError(`El campo "y${i}" es obligatorio.`);
@@ -55,7 +54,6 @@ export default function NewtonInterpolante() {
       }
     }
 
-    // Validar que x sean números válidos
     for (let i = 0; i < points.length; i++) {
       if (isNaN(parseFloat(points[i].x))) {
         setError(`El campo "x${i}" debe ser un número válido.`);
@@ -65,7 +63,6 @@ export default function NewtonInterpolante() {
       }
     }
 
-    // Validar que y sean números válidos
     for (let i = 0; i < points.length; i++) {
       if (isNaN(parseFloat(points[i].y))) {
         setError(`El campo "y${i}" debe ser un número válido.`);
@@ -75,7 +72,6 @@ export default function NewtonInterpolante() {
       }
     }
 
-    // Validar que los valores x sean únicos
     const xValues = points.map((p) => p.x);
     const xSet = new Set(xValues);
     if (xSet.size !== xValues.length) {
@@ -85,7 +81,6 @@ export default function NewtonInterpolante() {
       return;
     }
 
-    // Validar que los valores y sean únicos
     const yValues = points.map((p) => p.y);
     const ySet = new Set(yValues);
     if (ySet.size !== yValues.length) {
@@ -95,7 +90,6 @@ export default function NewtonInterpolante() {
       return;
     }
 
-    // Si pasa todas las validaciones
     try {
       const xPoints = points.map((p) => parseFloat(p.x));
       const yPoints = points.map((p) => parseFloat(p.y));
@@ -136,13 +130,78 @@ export default function NewtonInterpolante() {
     return resultado;
   };
 
+  // Función para evaluar el polinomio de Newton en un valor x
+  const evaluarPolinomio = (x, coeffs, points) => {
+    if (!coeffs || coeffs.length === 0) return 0;
+
+    let resultado = coeffs[0];
+    for (let i = 1; i < coeffs.length; i++) {
+      let term = coeffs[i];
+      for (let j = 0; j < i; j++) {
+        term *= x - points[j].x;
+      }
+      resultado += term;
+    }
+    return resultado;
+  };
+
+  // Preparar datos para gráfica
+  let plotData = null;
+  if (coeffs && points && points.length > 0) {
+    const xMin = Math.min(...points.map((p) => parseFloat(p.x)));
+    const xMax = Math.max(...points.map((p) => parseFloat(p.x)));
+    const xValuesPlot = [];
+    const numPointsPlot = 200;
+    const step = (xMax - xMin) / (numPointsPlot - 1);
+    for (let i = 0; i < numPointsPlot; i++) {
+      xValuesPlot.push(xMin + i * step);
+    }
+    const yValuesPlot = xValuesPlot.map((x) =>
+      evaluarPolinomio(x, coeffs, points)
+    );
+
+    plotData = (
+      <>
+        {" "}
+        <h3>Gráfica del Polinomio Interpolado de Newton</h3>
+        <Plot
+          data={[
+            {
+              x: points.map((p) => parseFloat(p.x)),
+              y: points.map((p) => parseFloat(p.y)),
+              mode: "markers",
+              type: "scatter",
+              name: "Puntos dados",
+              marker: { color: "red", size: 8 },
+            },
+            {
+              x: xValuesPlot,
+              y: yValuesPlot,
+              mode: "lines",
+              type: "scatter",
+              name: "Polinomio Interpolante",
+              line: { color: "blue" },
+            },
+          ]}
+          layout={{
+            width: 800,
+            height: 600,
+            title: "Gráfica del Polinomio Interpolante de Newton",
+            xaxis: { title: "x" },
+            yaxis: { title: "y" },
+            margin: { t: 40, b: 40, l: 40, r: 40 },
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Interpolación de Newton</h1>
       <div className="top-section">
         <div className="formulario-contenedor-cap3">
           <form className="formulario" onSubmit={handleSubmit}>
-            {/* Número de puntos */}
             <label className="label-con-icono">
               <div>
                 <div className="tooltip-container">
@@ -318,6 +377,8 @@ export default function NewtonInterpolante() {
                 >
                   {polinomioExtendido(coeffs, points)}
                 </pre>
+
+                {plotData}
               </>
             )}
           </div>

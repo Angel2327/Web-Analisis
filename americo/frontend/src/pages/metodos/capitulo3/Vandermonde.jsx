@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "katex/dist/katex.min.css";
 import { BlockMath } from "react-katex";
+import Plot from "react-plotly.js";
 import "../assets/EstiloMetodos.css";
 
 export default function Vandermonde() {
@@ -10,7 +11,7 @@ export default function Vandermonde() {
   const [matrix, setMatrix] = useState(null);
   const [coeffs, setCoeffs] = useState(null);
   const [poly, setPoly] = useState("");
-  const [errors, setErrors] = useState([]); // Cambié a array para múltiples mensajes
+  const [errors, setErrors] = useState([]);
 
   function formatNumber(num, maxDecimals = 6, fixed = false) {
     if (fixed) {
@@ -41,12 +42,9 @@ export default function Vandermonde() {
     e.preventDefault();
     let errorMsg = "";
 
-    // Validar n
     if (!n || n < 2 || n > 8) {
       errorMsg = "El número de puntos debe ser un valor entre 2 y 8.";
-    }
-    // Validar puntos x e y secuencialmente
-    else {
+    } else {
       for (let i = 0; i < points.length; i++) {
         const point = points[i];
         if (point.x === "" || point.x === null || point.x === undefined) {
@@ -70,12 +68,11 @@ export default function Vandermonde() {
         const xSet = new Set(xValues);
         const yValues = points.map((p) => parseFloat(p.y));
         const ySet = new Set(yValues);
-        // Validación duplicados en X
+
         if (xSet.size !== xValues.length) {
           setErrors(["Los valores de X no deben repetirse."]);
           return;
         }
-        // Validación duplicados en Y
         if (ySet.size !== yValues.length) {
           setErrors(["Los valores de Y no deben repetirse."]);
           return;
@@ -88,7 +85,6 @@ export default function Vandermonde() {
       return;
     }
 
-    // Si pasó todas las validaciones, procedemos con la petición
     try {
       const xPoints = points.map((p) => parseFloat(p.x));
       const yPoints = points.map((p) => parseFloat(p.y));
@@ -155,6 +151,37 @@ export default function Vandermonde() {
     `;
   };
 
+  // Función para evaluar el polinomio en un punto x
+  function evaluarPolinomio(coefs, x) {
+    let y = 0;
+    const n = coefs.length;
+    for (let i = 0; i < n; i++) {
+      y += coefs[i] * Math.pow(x, n - 1 - i);
+    }
+    return y;
+  }
+
+  // Generar datos para graficar el polinomio
+  const plotData = () => {
+    if (!coeffs || points.length === 0) return null;
+
+    const xVals = points.map((p) => parseFloat(p.x));
+    const xMin = Math.min(...xVals);
+    const xMax = Math.max(...xVals);
+
+    const step = (xMax - xMin) / 100;
+    const xPlot = [];
+    const yPlot = [];
+    for (let x = xMin; x <= xMax; x += step) {
+      xPlot.push(x);
+      yPlot.push(evaluarPolinomio(coeffs, x));
+    }
+
+    return { xPlot, yPlot };
+  };
+
+  const datosGrafica = plotData();
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">
@@ -163,7 +190,6 @@ export default function Vandermonde() {
       <div className="top-section">
         <div className="formulario-contenedor-cap3">
           <form className="formulario" onSubmit={handleSubmit}>
-            {/* Número de puntos */}
             <label className="label-con-icono">
               <div>
                 <div className="tooltip-container">
@@ -267,7 +293,6 @@ export default function Vandermonde() {
               </label>
             ))}
 
-            {/* Aquí mostramos los errores arriba del botón */}
             {errors.length > 0 && (
               <div className="error" style={{ marginBottom: "1rem" }}>
                 {errors.map((errMsg, i) => (
@@ -280,7 +305,6 @@ export default function Vandermonde() {
           </form>
         </div>
 
-        {/* Resultado */}
         {(matrix || coeffs || poly) && (
           <div className="resultado-container-cap3">
             {matrix && (
@@ -313,6 +337,39 @@ export default function Vandermonde() {
                 >
                   <BlockMath>{poly}</BlockMath>
                 </div>
+              </>
+            )}
+
+            {poly && datosGrafica && (
+              <>
+                <h3>Gráfica del Polinomio Interpolado de Vandermonde</h3>
+                <Plot
+                  data={[
+                    {
+                      x: datosGrafica.xPlot,
+                      y: datosGrafica.yPlot,
+                      type: "scatter",
+                      mode: "lines",
+                      marker: { color: "blue" },
+                      name: "Polinomio Interpolado",
+                    },
+                    {
+                      x: points.map((p) => parseFloat(p.x)),
+                      y: points.map((p) => parseFloat(p.y)),
+                      type: "scatter",
+                      mode: "markers",
+                      marker: { color: "red", size: 8 },
+                      name: "Puntos Dados",
+                    },
+                  ]}
+                  layout={{
+                    width: 800,
+                    height: 600,
+                    title: "Interpolación de Vandermonde",
+                    xaxis: { title: "x" },
+                    yaxis: { title: "y" },
+                  }}
+                />
               </>
             )}
           </div>

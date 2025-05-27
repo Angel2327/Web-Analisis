@@ -20,13 +20,18 @@ def metodo_spline(x, y, tipo="lineal"):
         return {"error": f"Tipo de spline '{tipo}' no implementado."}, 400
 
 
-def spline_lineal(x, y):
+def spline_lineal(x, y, num_puntos=500):
     n = len(x)
     x = np.array(x)
     y = np.array(y)
     splines = []
     coef_table = []
     xi = symbols("x")
+
+    # Preparar arrays para la curva
+    curvaX = np.linspace(x[0], x[-1], num_puntos)
+    curvaY = np.zeros_like(curvaX)
+
     for i in range(n - 1):
         m = (y[i + 1] - y[i]) / (x[i + 1] - x[i])  # pendiente
         b = y[i] - m * x[i]  # intercepto
@@ -41,14 +46,23 @@ def spline_lineal(x, y):
                 "formato": f"{m:.3f}x + {b:.3f}",
             }
         )
-    return {"splines": splines, "coeficientes": coef_table}
+
+        # Rellenar curvaY para el segmento [x[i], x[i+1]]
+        mask = (curvaX >= x[i]) & (curvaX <= x[i + 1])
+        curvaY[mask] = m * curvaX[mask] + b
+
+    return {
+        "splines": splines,
+        "coeficientes": coef_table,
+        "curvaX": curvaX.tolist(),
+        "curvaY": curvaY.tolist(),
+    }
 
 
-def spline_cubico(x, y):
+def spline_cubico(x, y, num_puntos=500):
     n = len(x)
     h = [x[i + 1] - x[i] for i in range(n - 1)]
 
-    # Paso 1: Crear matriz del sistema y vector del lado derecho
     A = np.zeros((n, n))
     b_vec = np.zeros(n)
 
@@ -61,10 +75,8 @@ def spline_cubico(x, y):
         A[i][i + 1] = h[i]
         b_vec[i] = 3 * ((y[i + 1] - y[i]) / h[i] - (y[i] - y[i - 1]) / h[i - 1])
 
-    # Paso 2: Resolver para c
     c = np.linalg.solve(A, b_vec)
 
-    # Paso 3: Calcular a, b, d
     a = [y[i] for i in range(n - 1)]
     b = [0] * (n - 1)
     d = [0] * (n - 1)
@@ -72,6 +84,10 @@ def spline_cubico(x, y):
 
     splines = []
     coef_table = []
+
+    # Preparar arrays para la curva
+    curvaX = np.linspace(x[0], x[-1], num_puntos)
+    curvaY = np.zeros_like(curvaX)
 
     for i in range(n - 1):
         b[i] = (y[i + 1] - y[i]) / h[i] - h[i] * (2 * c[i] + c[i + 1]) / 3
@@ -96,8 +112,16 @@ def spline_cubico(x, y):
             }
         )
 
-    print("Coeficientes cúbicos enviados al frontend:")
-    for row in coef_table:
-        print(row)
+        # Rellenar curvaY para los puntos en el intervalo [x[i], x[i+1]]
+        mask = (curvaX >= x[i]) & (curvaX <= x[i + 1])
+        X_segment = curvaX[mask] - x[i]
+        curvaY[mask] = (
+            a[i] + b[i] * X_segment + c[i] * X_segment**2 + d[i] * X_segment**3
+        )
 
-    return {"splines": splines, "coeficientes": coef_table}
+    return {
+        "splines": splines,
+        "coeficientes": coef_table,
+        "curvaX": curvaX.tolist(),
+        "curvaY": curvaY.tolist(),
+    }

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Plot from "react-plotly.js";
+import { parse } from "mathjs";
 import "../assets/EstiloMetodos.css";
 
 export default function Lagrange() {
@@ -8,6 +10,7 @@ export default function Lagrange() {
   const [lagrangeBases, setLagrangeBases] = useState([]);
   const [expandedPolynomial, setExpandedPolynomial] = useState("");
   const [errors, setErrors] = useState([]);
+  const [graphData, setGraphData] = useState(null);
 
   const handleChangeN = (e) => {
     const newN = Math.min(Math.max(parseInt(e.target.value), 2), 8);
@@ -16,6 +19,7 @@ export default function Lagrange() {
     setLagrangeBases([]);
     setExpandedPolynomial("");
     setErrors([]);
+    setGraphData(null);
   };
 
   const handleChangePoint = (index, field, value) => {
@@ -26,14 +30,8 @@ export default function Lagrange() {
 
   const validarCampos = () => {
     for (let i = 0; i < points.length; i++) {
-      if (points[i].x === "") {
-        return [`El campo "x${i}" es obligatorio.`];
-      }
-    }
-    for (let i = 0; i < points.length; i++) {
-      if (points[i].y === "") {
-        return [`El campo "y${i}" es obligatorio.`];
-      }
+      if (points[i].x === "") return [`El campo "x${i}" es obligatorio.`];
+      if (points[i].y === "") return [`El campo "y${i}" es obligatorio.`];
     }
     return [];
   };
@@ -45,6 +43,7 @@ export default function Lagrange() {
       setErrors(erroresValidacion);
       setLagrangeBases([]);
       setExpandedPolynomial("");
+      setGraphData(null);
       return;
     }
 
@@ -57,14 +56,12 @@ export default function Lagrange() {
         return;
       }
 
-      // Validación duplicados en X
       const xSet = new Set(xPoints);
       if (xSet.size !== xPoints.length) {
         setErrors(["Los valores de X no deben repetirse."]);
         return;
       }
 
-      // Validación duplicados en Y
       const ySet = new Set(yPoints);
       if (ySet.size !== yPoints.length) {
         setErrors(["Los valores de Y no deben repetirse."]);
@@ -78,6 +75,28 @@ export default function Lagrange() {
 
       setLagrangeBases(response.data.lagrange_bases || []);
       setExpandedPolynomial(response.data.expanded_poly || "");
+
+      try {
+        const expr = parse(response.data.expanded_poly);
+        const compiled = expr.compile();
+
+        const minX = Math.min(...xPoints);
+        const maxX = Math.max(...xPoints);
+        const step = (maxX - minX) / 100;
+        const xValues = [];
+        const yValues = [];
+
+        for (let x = minX; x <= maxX; x += step) {
+          xValues.push(x);
+          yValues.push(compiled.evaluate({ x }));
+        }
+
+        setGraphData({ x: xValues, y: yValues });
+      } catch (err) {
+        console.error("Error al evaluar el polinomio:", err);
+        setGraphData(null);
+      }
+
       setErrors([]);
     } catch (err) {
       setErrors([
@@ -85,6 +104,7 @@ export default function Lagrange() {
       ]);
       setLagrangeBases([]);
       setExpandedPolynomial("");
+      setGraphData(null);
     }
   };
 
@@ -94,7 +114,6 @@ export default function Lagrange() {
       <div className="top-section">
         <div className="formulario-contenedor-cap3">
           <form className="formulario" onSubmit={handleSubmit}>
-            {/* Número de puntos */}
             <label className="label-con-icono">
               <div>
                 <div className="tooltip-container">
@@ -102,7 +121,7 @@ export default function Lagrange() {
                     ?
                     <div className="tooltip-text">
                       <p className="tooltip-explicacion">
-                        Define el numero de puntos para los vectores X y Y. Debe
+                        Define el número de puntos para los vectores X y Y. Debe
                         ser un valor entre 2 y 8.
                       </p>
                       <p className="tooltip-ejemplo">
@@ -142,7 +161,7 @@ export default function Lagrange() {
                           <div className="tooltip-text">
                             <p className="tooltip-explicacion">
                               Vector de puntos X. No debe tener puntos
-                              duplicados, deben ser valores unicos.
+                              duplicados.
                             </p>
                             <p className="tooltip-ejemplo">
                               Ejemplo: <code>[1, 2, 3]</code>
@@ -159,10 +178,10 @@ export default function Lagrange() {
                           <div className="tooltip-text">
                             <p className="tooltip-explicacion">
                               Vector de puntos Y. No debe tener puntos
-                              duplicados, deben ser valores unicos.
+                              duplicados.
                             </p>
                             <p className="tooltip-ejemplo">
-                              Ejemplo: <code>[1, 2, 3]</code>
+                              Ejemplo: <code>[2, 4, 8]</code>
                             </p>
                           </div>
                         </div>
@@ -198,7 +217,6 @@ export default function Lagrange() {
               </label>
             ))}
 
-            {/* Mensajes de error */}
             {errors.length > 0 && (
               <div className="error" style={{ marginTop: "1rem" }}>
                 {errors.map((err, idx) => (
@@ -263,6 +281,40 @@ export default function Lagrange() {
                 >
                   {expandedPolynomial}
                 </pre>
+              </>
+            )}
+
+            {graphData && (
+              <>
+                <h3>Gráfica del Polinomio Interpolado de Lagrange</h3>
+                <Plot
+                  data={[
+                    {
+                      x: graphData.x,
+                      y: graphData.y,
+                      type: "scatter",
+                      mode: "lines",
+                      marker: { color: "blue" },
+                      name: "Polinomio",
+                    },
+                    {
+                      x: points.map((p) => parseFloat(p.x)),
+                      y: points.map((p) => parseFloat(p.y)),
+                      type: "scatter",
+                      mode: "markers",
+                      marker: { color: "red", size: 8 },
+                      name: "Puntos",
+                    },
+                  ]}
+                  layout={{
+                    width: 800,
+                    height: 600,
+                    title: "Polinomio Interpolante de Lagrange",
+                    xaxis: { title: "x" },
+                    yaxis: { title: "P(x)" },
+                    autosize: true,
+                  }}
+                />
               </>
             )}
           </div>
