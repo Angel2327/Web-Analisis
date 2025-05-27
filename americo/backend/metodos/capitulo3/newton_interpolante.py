@@ -23,15 +23,15 @@ def metodo_newton_interpolante(xPoints, yPoints):
                 xPoints[i + j] - xPoints[i]
             )
 
-    coeffs = diff_table[0, :]  # coeficientes de Newton
+    coeficientes = diff_table[0, :]  # coeficientes de Newton
 
     # Construir el polinomio simbólico
     x = symbols("x")
-    poly_expr = coeffs[0]
+    poly_expr = coeficientes[0]
     product_term = 1
     for i in range(1, n):
         product_term *= x - xPoints[i - 1]
-        poly_expr += coeffs[i] * product_term
+        poly_expr += coeficientes[i] * product_term
 
     poly_str = str(simplify(expand(poly_expr)))
 
@@ -40,6 +40,6 @@ def metodo_newton_interpolante(xPoints, yPoints):
 
     return {
         "difference_table": diff_table_list,
-        "coeffs": coeffs.tolist(),
+        "coeficientes": coeficientes.tolist(),
         "polynomial": poly_str,
     }

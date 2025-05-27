@@ -140,6 +140,63 @@ export default function Spline() {
     return traceSpline ? [tracePoints, traceSpline] : [tracePoints];
   };
 
+  const descargarInformeIndividual = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-individual",
+        {
+          metodo: "spline",
+          xPoints,
+          yPoints,
+          tipo_spline: tipo,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_Spline.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe individual."
+      );
+    }
+  };
+
+  const descargarInformeGeneral = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-general",
+        { xPoints, yPoints },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_general_capitulo3.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe general."
+      );
+    }
+  };
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">Interpolación de Spline</h1>
@@ -173,29 +230,6 @@ export default function Spline() {
               max="8"
               onChange={handleChangeN}
             />
-
-            {/* Tipo de Spline */}
-            <label className="label-con-icono">
-              <div>
-                <div className="tooltip-container">
-                  <div className="tooltip-icon">
-                    ?
-                    <div className="tooltip-text">
-                      <p className="tooltip-explicacion">
-                        Selecciona el tipo de spline: Lineal (Conecta puntos con
-                        líneas rectas). Cúbico (Usa curvas suaves para unir los
-                        puntos)
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <span>Tipo de Spline:</span>
-              </div>
-            </label>
-            <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              <option value="lineal">Lineal</option>
-              <option value="cubico">Cúbico</option>
-            </select>
 
             {points.map((point, idx) => (
               <label key={idx}>
@@ -273,6 +307,29 @@ export default function Spline() {
               </label>
             ))}
 
+            {/* Tipo de Spline */}
+            <label className="label-con-icono">
+              <div>
+                <div className="tooltip-container">
+                  <div className="tooltip-icon">
+                    ?
+                    <div className="tooltip-text">
+                      <p className="tooltip-explicacion">
+                        Selecciona el tipo de spline: Lineal (Conecta puntos con
+                        líneas rectas). Cúbico (Usa curvas suaves para unir los
+                        puntos)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <span>Tipo de Spline:</span>
+              </div>
+            </label>
+            <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
+              <option value="lineal">Lineal</option>
+              <option value="cubico">Cúbico</option>
+            </select>
+
             {error && <p className="error">{error}</p>}
 
             <button type="submit">Calcular</button>
@@ -347,6 +404,31 @@ export default function Spline() {
                 yaxis: { title: "Y" },
               }}
             />
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                disabled={
+                  error.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe Spline
+              </button>
+
+              <button
+                type="button"
+                onClick={descargarInformeGeneral}
+                disabled={
+                  error.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe General
+              </button>
+            </div>
           </div>
         )}
       </div>

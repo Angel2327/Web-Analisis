@@ -9,7 +9,7 @@ export default function Vandermonde() {
   const [n, setN] = useState(2);
   const [points, setPoints] = useState(Array(2).fill({ x: "", y: "" }));
   const [matrix, setMatrix] = useState(null);
-  const [coeffs, setCoeffs] = useState(null);
+  const [coeficientes, setCoeficientes] = useState(null);
   const [poly, setPoly] = useState("");
   const [errors, setErrors] = useState([]);
 
@@ -27,7 +27,7 @@ export default function Vandermonde() {
     setN(newN);
     setPoints(Array(newN).fill({ x: "", y: "" }));
     setMatrix(null);
-    setCoeffs(null);
+    setCoeficientes(null);
     setPoly("");
     setErrors([]);
   };
@@ -95,11 +95,11 @@ export default function Vandermonde() {
       const data = response.data;
 
       const reversedMatrix = data.matrix.map((row) => [...row].reverse());
-      const reversedCoeffs = [...data.coeffs].reverse();
+      const reversedCoeficientes = [...data.coeficientes].reverse();
 
-      const formattedPoly = reversedCoeffs
+      const formattedPoly = reversedCoeficientes
         .map((coef, i) => {
-          const power = reversedCoeffs.length - 1 - i;
+          const power = reversedCoeficientes.length - 1 - i;
           const sign = coef < 0 ? " - " : i > 0 ? " + " : "";
           const absCoef = formatNumber(Math.abs(coef), 3, true);
           let term;
@@ -112,7 +112,7 @@ export default function Vandermonde() {
         .trim();
 
       setMatrix(reversedMatrix);
-      setCoeffs(reversedCoeffs);
+      setCoeficientes(reversedCoeficientes);
       setPoly(formattedPoly);
       setErrors([]);
     } catch (err) {
@@ -163,7 +163,7 @@ export default function Vandermonde() {
 
   // Generar datos para graficar el polinomio
   const plotData = () => {
-    if (!coeffs || points.length === 0) return null;
+    if (!coeficientes || points.length === 0) return null;
 
     const xVals = points.map((p) => parseFloat(p.x));
     const xMin = Math.min(...xVals);
@@ -174,13 +174,69 @@ export default function Vandermonde() {
     const yPlot = [];
     for (let x = xMin; x <= xMax; x += step) {
       xPlot.push(x);
-      yPlot.push(evaluarPolinomio(coeffs, x));
+      yPlot.push(evaluarPolinomio(coeficientes, x));
     }
 
     return { xPlot, yPlot };
   };
 
   const datosGrafica = plotData();
+
+  const descargarInformeIndividual = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-individual",
+        {
+          metodo: "vandermonde",
+          xPoints,
+          yPoints,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_Vandermonde.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe individual."
+      );
+    }
+  };
+
+  const descargarInformeGeneral = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-general",
+        { xPoints, yPoints },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_general_capitulo3.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe general."
+      );
+    }
+  };
 
   return (
     <div className="metodo-principal-page">
@@ -305,7 +361,7 @@ export default function Vandermonde() {
           </form>
         </div>
 
-        {(matrix || coeffs || poly) && (
+        {(matrix || coeficientes || poly) && (
           <div className="resultado-container-cap3">
             {matrix && (
               <>
@@ -316,11 +372,11 @@ export default function Vandermonde() {
               </>
             )}
 
-            {coeffs && (
+            {coeficientes && (
               <>
                 <h3>Coeficientes Polinomiales</h3>
                 <p style={{ fontFamily: "monospace", fontSize: "1.2rem" }}>
-                  [{coeffs.map((c) => formatNumber(c, 3)).join(", ")}]
+                  [{coeficientes.map((c) => formatNumber(c, 3)).join(", ")}]
                 </p>
               </>
             )}
@@ -372,6 +428,31 @@ export default function Vandermonde() {
                 />
               </>
             )}
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                disabled={
+                  errors.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe Vandermonde
+              </button>
+
+              <button
+                type="button"
+                onClick={descargarInformeGeneral}
+                disabled={
+                  errors.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe General
+              </button>
+            </div>
           </div>
         )}
       </div>

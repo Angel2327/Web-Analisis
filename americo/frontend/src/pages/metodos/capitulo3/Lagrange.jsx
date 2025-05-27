@@ -108,6 +108,62 @@ export default function Lagrange() {
     }
   };
 
+  const descargarInformeIndividual = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-individual",
+        {
+          metodo: "lagrange", // aquí especificas el método
+          xPoints,
+          yPoints,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_lagrange.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe individual."
+      );
+    }
+  };
+
+  const descargarInformeGeneral = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-general",
+        { xPoints, yPoints },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_general_capitulo3.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe general."
+      );
+    }
+  };
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Interpolación de Lagrange</h1>
@@ -317,6 +373,31 @@ export default function Lagrange() {
                 />
               </>
             )}
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                disabled={
+                  errors.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe Lagrange
+              </button>
+
+              <button
+                type="button"
+                onClick={descargarInformeGeneral}
+                disabled={
+                  errors.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe General
+              </button>
+            </div>
           </div>
         )}
       </div>

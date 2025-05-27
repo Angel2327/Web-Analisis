@@ -10,10 +10,14 @@ def metodo_vandermonde(xPoints, yPoints):
     yPoints = np.array(yPoints, dtype=float)
 
     V = np.vander(xPoints, increasing=True)
-    coeffs = np.linalg.solve(V, yPoints)
+    coeficientes = np.linalg.solve(V, yPoints)
 
     x = symbols("x")
-    poly_expr = sum(coeffs[i] * x**i for i in range(len(coeffs)))
+    poly_expr = sum(coeficientes[i] * x**i for i in range(len(coeficientes)))
     poly_str = str(simplify(expand(poly_expr)))
 
-    return {"matrix": V.tolist(), "coeffs": coeffs.tolist(), "polynomial": poly_str}
+    return {
+        "matrix": V.tolist(),
+        "coeficientes": coeficientes.tolist(),
+        "polynomial": poly_str,
+    }

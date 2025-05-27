@@ -41,10 +41,8 @@ def metodo_lagrange(xPoints, yPoints):
             if i != j:
                 term *= (x - xPoints[j]) / (xPoints[i] - xPoints[j])
         polynomial += term
-    polynomial_simplified = str(simplify(expand(polynomial)))
 
     return {
         "lagrange_bases": lagrange_bases,
         "expanded_poly": expanded_poly,
-        "polynomial_simplified": polynomial_simplified,
     }

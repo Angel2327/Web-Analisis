@@ -7,7 +7,7 @@ export default function NewtonInterpolante() {
   const [n, setN] = useState(2);
   const [points, setPoints] = useState(Array(2).fill({ x: "", y: "" }));
   const [differenceTable, setDifferenceTable] = useState(null);
-  const [coeffs, setCoeffs] = useState(null);
+  const [coeficientes, setCoeficientes] = useState(null);
   const [error, setError] = useState("");
 
   const formatTableNumber = (num, decimals = 3) =>
@@ -23,7 +23,7 @@ export default function NewtonInterpolante() {
     setN(newN);
     setPoints(Array(newN).fill({ x: "", y: "" }));
     setDifferenceTable(null);
-    setCoeffs(null);
+    setCoeficientes(null);
     setError("");
   };
 
@@ -40,7 +40,7 @@ export default function NewtonInterpolante() {
       if (points[i].x === "") {
         setError(`El campo "x${i}" es obligatorio.`);
         setDifferenceTable(null);
-        setCoeffs(null);
+        setCoeficientes(null);
         return;
       }
     }
@@ -49,7 +49,7 @@ export default function NewtonInterpolante() {
       if (points[i].y === "") {
         setError(`El campo "y${i}" es obligatorio.`);
         setDifferenceTable(null);
-        setCoeffs(null);
+        setCoeficientes(null);
         return;
       }
     }
@@ -58,7 +58,7 @@ export default function NewtonInterpolante() {
       if (isNaN(parseFloat(points[i].x))) {
         setError(`El campo "x${i}" debe ser un número válido.`);
         setDifferenceTable(null);
-        setCoeffs(null);
+        setCoeficientes(null);
         return;
       }
     }
@@ -67,7 +67,7 @@ export default function NewtonInterpolante() {
       if (isNaN(parseFloat(points[i].y))) {
         setError(`El campo "y${i}" debe ser un número válido.`);
         setDifferenceTable(null);
-        setCoeffs(null);
+        setCoeficientes(null);
         return;
       }
     }
@@ -77,7 +77,7 @@ export default function NewtonInterpolante() {
     if (xSet.size !== xValues.length) {
       setError("Los valores de X deben ser únicos, hay duplicados.");
       setDifferenceTable(null);
-      setCoeffs(null);
+      setCoeficientes(null);
       return;
     }
 
@@ -86,7 +86,7 @@ export default function NewtonInterpolante() {
     if (ySet.size !== yValues.length) {
       setError("Los valores de Y deben ser únicos, hay duplicados.");
       setDifferenceTable(null);
-      setCoeffs(null);
+      setCoeficientes(null);
       return;
     }
 
@@ -101,23 +101,23 @@ export default function NewtonInterpolante() {
       const data = response.data;
 
       setDifferenceTable(data.difference_table);
-      setCoeffs(data.coeffs);
+      setCoeficientes(data.coeficientes);
       setError("");
     } catch (err) {
       setError(
         err.response?.data?.message || "Error al conectar con el servidor."
       );
       setDifferenceTable(null);
-      setCoeffs(null);
+      setCoeficientes(null);
     }
   };
 
-  const polinomioExtendido = (coeffs, points) => {
-    if (!coeffs || coeffs.length === 0) return "";
+  const polinomioExtendido = (coeficientes, points) => {
+    if (!coeficientes || coeficientes.length === 0) return "";
 
-    let resultado = `${formatShort(coeffs[0])}`;
-    for (let i = 1; i < coeffs.length; i++) {
-      const coef = coeffs[i];
+    let resultado = `${formatShort(coeficientes[0])}`;
+    for (let i = 1; i < coeficientes.length; i++) {
+      const coef = coeficientes[i];
       const signo = coef >= 0 ? " + " : " - ";
       const valor = formatShort(Math.abs(coef));
       const multiplicadores = Array.from(
@@ -131,12 +131,12 @@ export default function NewtonInterpolante() {
   };
 
   // Función para evaluar el polinomio de Newton en un valor x
-  const evaluarPolinomio = (x, coeffs, points) => {
-    if (!coeffs || coeffs.length === 0) return 0;
+  const evaluarPolinomio = (x, coeficientes, points) => {
+    if (!coeficientes || coeficientes.length === 0) return 0;
 
-    let resultado = coeffs[0];
-    for (let i = 1; i < coeffs.length; i++) {
-      let term = coeffs[i];
+    let resultado = coeficientes[0];
+    for (let i = 1; i < coeficientes.length; i++) {
+      let term = coeficientes[i];
       for (let j = 0; j < i; j++) {
         term *= x - points[j].x;
       }
@@ -147,7 +147,7 @@ export default function NewtonInterpolante() {
 
   // Preparar datos para gráfica
   let plotData = null;
-  if (coeffs && points && points.length > 0) {
+  if (coeficientes && points && points.length > 0) {
     const xMin = Math.min(...points.map((p) => parseFloat(p.x)));
     const xMax = Math.max(...points.map((p) => parseFloat(p.x)));
     const xValuesPlot = [];
@@ -157,7 +157,7 @@ export default function NewtonInterpolante() {
       xValuesPlot.push(xMin + i * step);
     }
     const yValuesPlot = xValuesPlot.map((x) =>
-      evaluarPolinomio(x, coeffs, points)
+      evaluarPolinomio(x, coeficientes, points)
     );
 
     plotData = (
@@ -195,6 +195,62 @@ export default function NewtonInterpolante() {
       </>
     );
   }
+
+  const descargarInformeIndividual = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-individual",
+        {
+          metodo: "newton",
+          xPoints,
+          yPoints,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_NewtonInterpolante.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe individual."
+      );
+    }
+  };
+
+  const descargarInformeGeneral = async () => {
+    try {
+      const xPoints = points.map((p) => parseFloat(p.x));
+      const yPoints = points.map((p) => parseFloat(p.y));
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-general",
+        { xPoints, yPoints },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_general_capitulo3.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe general."
+      );
+    }
+  };
 
   return (
     <div className="metodo-principal-page">
@@ -317,7 +373,7 @@ export default function NewtonInterpolante() {
           </form>
         </div>
 
-        {(differenceTable || coeffs) && (
+        {(differenceTable || coeficientes) && (
           <div className="resultado-container">
             {differenceTable && (
               <div>
@@ -355,16 +411,16 @@ export default function NewtonInterpolante() {
               </div>
             )}
 
-            {coeffs && (
+            {coeficientes && (
               <>
                 <h3>Coeficientes polinomiales de Newton</h3>
                 <p style={{ fontFamily: "monospace", fontSize: "1rem" }}>
-                  [{coeffs.map((c) => formatShort(c)).join(", ")}]
+                  [{coeficientes.map((c) => formatShort(c)).join(", ")}]
                 </p>
               </>
             )}
 
-            {coeffs && points && (
+            {coeficientes && points && (
               <>
                 <h3>Polinomio Interpolante Expandido</h3>
                 <pre
@@ -375,12 +431,37 @@ export default function NewtonInterpolante() {
                     wordBreak: "break-word",
                   }}
                 >
-                  {polinomioExtendido(coeffs, points)}
+                  {polinomioExtendido(coeficientes, points)}
                 </pre>
 
                 {plotData}
               </>
             )}
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                disabled={
+                  error.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe Newton Interpolante
+              </button>
+
+              <button
+                type="button"
+                onClick={descargarInformeGeneral}
+                disabled={
+                  error.length > 0 ||
+                  points.some((p) => p.x === "" || p.y === "")
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe General
+              </button>
+            </div>
           </div>
         )}
       </div>

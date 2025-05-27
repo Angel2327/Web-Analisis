@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sympy as sp
-from components.graficar_funcion import graficar_funcion
+from flask import send_file
+from utils.generar_informe_excel import (
+    generar_informe_individual,
+    generar_informe_general,
+)
+from utils.graficar_funcion import graficar_funcion
 from metodos.capitulo1.biseccion import metodo_biseccion
 from metodos.capitulo1.regla_falsa import metodo_regla_falsa
 from metodos.capitulo1.punto_fijo import metodo_punto_fijo
@@ -268,5 +273,58 @@ def spline():
         return jsonify({"message": "Error interno en el servidor"}), 500
 
 
+@app.route("/api/informe-individual", methods=["POST"])
+def informe_individual():
+    try:
+        data = request.json
+        metodo = data.get("metodo")
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+        tipo_spline = data.get("tipo_spline", "lineal")
+
+        if not metodo or not xPoints or not yPoints:
+            return jsonify({"message": "Datos incompletos"}), 400
+
+        archivo_excel = generar_informe_individual(
+            metodo, xPoints, yPoints, tipo_spline
+        )
+
+        return send_file(
+            archivo_excel,
+            as_attachment=True,
+            download_name=f"informe_{metodo}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    except Exception as e:
+        return (
+            jsonify({"message": f"Error generando informe individual: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/api/informe-general", methods=["POST"])
+def informe_general():
+    try:
+        data = request.json
+        xPoints = data.get("xPoints", [])
+        yPoints = data.get("yPoints", [])
+
+        if not xPoints or not yPoints:
+            return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
+
+        archivo_excel, _ = generar_informe_general(xPoints, yPoints)
+
+        return send_file(
+            archivo_excel,
+            as_attachment=True,
+            download_name="informe_general_capitulo3.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    except Exception as e:
+        return jsonify({"message": f"Error generando informe general: {str(e)}"}), 500
+
+
 if __name__ == "__main__":
-    app.run(port=8000)
+    app.run(port=8000, debug=True)
