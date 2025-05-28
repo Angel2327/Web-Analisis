@@ -1,0 +1,122 @@
+/* Contenedor general */
+.help-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #f9fafb;
+  color: #333;
+  padding: 60px 20px 40px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+/* Contenido */
+.help-content {
+  max-width: 680px;
+  background-color: #fff;
+  padding: 40px 35px;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.07);
+  border: 1px solid #ddd;
+}
+
+/* Título principal */
+.help-title {
+  font-size: 3.2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #2c3e50;
+  user-select: none;
+}
+
+/* Acordeón */
+
+.accordion-item {
+  border-bottom: 1px solid #e1e1e1;
+  text-align: left;
+}
+
+.accordion-header {
+  width: 100%;
+  padding: 1.25rem 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #059669;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  border-radius: 10px;
+  user-select: none;
+  text-align: left;   
+}
+
+.accordion-header:hover,
+.accordion-header.open {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.accordion-icon {
+  transition: transform 0.3s ease;
+  stroke: #059669;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* Rotar flecha cuando está abierto */
+.accordion-header.open .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* Panel oculto/visible con transición */
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  font-size: 1.1rem;
+  color: #4b5258;
+  padding: 0 1rem;
+}
+
+.accordion-panel.open {
+  max-height: 500px; /* suficiente para el contenido */
+  padding: 1rem 1rem 2rem;
+  user-select: text;
+}
+
+.accordion-panel p,
+.accordion-panel ul {
+  margin: 0 0 1rem 0;
+  line-height: 1.6;
+}
+
+.accordion-panel ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.accordion-panel a {
+  color: #059669;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.accordion-panel a:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.help-footer {
+  margin-top: 50px;
+  font-size: 0.9rem;
+  color: #888c91;
+  user-select: none;
+}

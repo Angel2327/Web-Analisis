@@ -7,16 +7,30 @@ def metodo_secante(funcion_str, x0, x1, tol, max_iter):
     try:
         f_expr = sp.sympify(funcion_str)
         f = sp.lambdify(x, f_expr, "numpy")
-    except Exception as e:
-        return {"error": f"Error interpretando función: {str(e)}"}, 400
+    except Exception:
+        return {"error": "Función no válida. Por favor revise la sintaxis."}, 400
 
     try:
         x0 = float(x0)
+    except ValueError:
+        return {"error": "El valor de 'x0' debe ser un número válido."}, 400
+
+    try:
         x1 = float(x1)
+    except ValueError:
+        return {"error": "El valor de 'x1' debe ser un número válido."}, 400
+
+    try:
         tol = float(tol)
+    except ValueError:
+        return {"error": "La tolerancia debe ser un número válido."}, 400
+
+    try:
         max_iter = int(max_iter)
     except ValueError:
-        return {"error": "Parámetros numéricos inválidos."}, 400
+        return {
+            "error": "El número máximo de iteraciones debe ser un entero válido."
+        }, 400
 
     tabla = []
     error = tol + 1
@@ -49,7 +63,6 @@ def metodo_secante(funcion_str, x0, x1, tol, max_iter):
         x0, x1 = x1, x2
         iteracion += 1
 
-    # Gráfica
     try:
         x_vals = np.linspace(x1 - 5, x1 + 5, 400)
         y_vals = f(x_vals)

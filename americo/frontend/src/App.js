@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
+import HelpPage from './pages/HelpPage';
+import AboutPage from './pages/AboutPage';
 import GraficaFuncion from "./components/GraficarFuncion";
 import MetodosPage from './pages/MetodosPage';
 import Biseccion from './pages/metodos/capitulo1/Biseccion';
@@ -24,10 +26,10 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="/metodos" element={<MetodosPage />} />
         <Route path="/grafica-funcion" element={<GraficaFuncion />} />
-        <Route path="/about" element={<div>Acerca de</div>} />
-        <Route path="/help" element={<div>Ayuda</div>} />
         <Route path="/metodo/biseccion" element={<Biseccion />} />
         <Route path="/metodo/regla-falsa" element={<ReglaFalsa />} />
         <Route path="/metodo/punto-fijo" element={<PuntoFijo />} />
