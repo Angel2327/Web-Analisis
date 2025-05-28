@@ -104,23 +104,33 @@ function PuntoFijo() {
     }
   };
 
-  const generarInforme = () => {
-    if (!resultado?.tabla) return;
-    let texto = "INFORME MÉTODO DE PUNTO FIJO\n\n";
-    texto += `f(x): ${params.funcion}\n`;
-    texto += `g(x): ${params.g_funcion}\n\n`;
-    texto += "Iteración | x | g(x) | f(x) | error\n";
-    texto += "-------------------------------------\n";
-    resultado.tabla.forEach((row) => {
-      texto += `Iteración ${row.iteracion}: x=${row.x}, g(x)=${row["g(x)"]}, f(x)=${row["f(x)"]}, error=${row.error}\n`;
-    });
+  const descargarInformeIndividual = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/informe-individual-cap1",
+        {
+          metodo: "punto-fijo",
+          datos: {
+            funcion: params.funcion,
+            g_funcion: params.g_funcion,
+            x0: params.x0,
+            tolerancia: params.tolerancia,
+            max_iter: params.max_iter,
+          },
+          resultado: resultado,
+        },
+        { responseType: "blob" }
+      );
 
-    const blob = new Blob([texto], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "informe_punto_fijo.txt";
-    a.click();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "informe_punto_fijo.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al generar el informe:", error);
+    }
   };
 
   return (
@@ -340,9 +350,15 @@ function PuntoFijo() {
                 </tbody>
               </table>
             </div>
-            <button className="informe-btn" onClick={generarInforme}>
-              Generar informe
-            </button>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                style={{ marginBottom: "20px" }}
+              >
+                Descargar Informe Punto Fijo
+              </button>
+            </div>
           </div>
         )}
       </div>

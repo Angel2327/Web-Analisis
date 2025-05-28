@@ -86,22 +86,32 @@ function RaicesMultiples() {
     }
   };
 
-  const generarInforme = () => {
-    if (!resultado?.tabla) return;
-    let texto = "INFORME MÉTODO DE RAÍCES MÚLTIPLES\n\n";
-    texto += `Función: ${params.funcion}\n\n`;
-    texto += "Iteración | x | f(x) | f'(x) | f''(x) | error\n";
-    texto += "---------------------------------------------\n";
-    resultado.tabla.forEach((row, i) => {
-      texto += `Iteración ${i}: x=${row.x}, f(x)=${row.fx}, f'(x)=${row.fx1}, f''(x)=${row.fx2}, error=${row.error}\n`;
-    });
+  const descargarInformeIndividual = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/informe-individual-cap1",
+        {
+          metodo: "raices-multiples",
+          datos: {
+            funcion: params.funcion,
+            x0: params.x0,
+            tolerancia: params.tolerancia,
+            max_iter: params.max_iter,
+          },
+          resultado: resultado,
+        },
+        { responseType: "blob" }
+      );
 
-    const blob = new Blob([texto], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "informe_raices_multiples.txt";
-    a.click();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "informe_raices_multiples.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al generar el informe:", error);
+    }
   };
 
   return (
@@ -278,10 +288,15 @@ function RaicesMultiples() {
                 </tbody>
               </table>
             </div>
-
-            <button className="informe-btn" onClick={generarInforme}>
-              Generar informe
-            </button>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                style={{ marginBottom: "20px" }}
+              >
+                Descargar Informe Raíces Múltiples
+              </button>
+            </div>
           </div>
         )}
       </div>

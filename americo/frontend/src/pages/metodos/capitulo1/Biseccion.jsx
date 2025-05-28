@@ -112,22 +112,33 @@ function Biseccion() {
     }
   };
 
-  const generarInforme = () => {
-    if (!resultado?.tabla) return;
-    let texto = "INFORME MÉTODO DE BISECCIÓN\n\n";
-    texto += `Función: ${params.funcion}\n\n`;
-    texto += "Iteración | a | b | xm | f(xm) | error\n";
-    texto += "---------------------------------------\n";
-    resultado.tabla.forEach((row, i) => {
-      texto += `Iteración ${i}: a=${row.a}, b=${row.b}, xm=${row.c}, f(xm)=${row["f(c)"]}, error=${row.error}\n`;
-    });
+  const descargarInformeIndividual = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/informe-individual-cap1",
+        {
+          metodo: "biseccion",
+          datos: {
+            funcion: params.funcion,
+            a: params.a,
+            b: params.b,
+            tolerancia: params.tolerancia,
+            max_iter: params.max_iter,
+          },
+          resultado: resultado,
+        },
+        { responseType: "blob" }
+      );
 
-    const blob = new Blob([texto], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "informe_biseccion.txt";
-    a.click();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "informe_biseccion.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al generar el informe:", error);
+    }
   };
 
   return (
@@ -338,9 +349,15 @@ function Biseccion() {
               </table>
             </div>
 
-            <button className="informe-btn" onClick={generarInforme}>
-              Generar informe
-            </button>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                style={{ marginBottom: "20px" }}
+              >
+                Descargar Informe Biseccion
+              </button>
+            </div>
           </div>
         )}
       </div>

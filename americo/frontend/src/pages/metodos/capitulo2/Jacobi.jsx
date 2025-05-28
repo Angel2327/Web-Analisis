@@ -123,6 +123,67 @@ const Jacobi = () => {
     }
   };
 
+  const descargarInformeIndividual = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-individual-cap2",
+        {
+          metodo: "jacobi",
+          matrizA: matrix.map((row) => row.map(Number)),
+          vectorB: vectorB.map(Number),
+          x0: x0.map(Number),
+          tol: parseFloat(tolerance),
+          max_iter: parseInt(iterations),
+          norma: norm,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_Jacobi.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe individual Jacobi."
+      );
+    }
+  };
+
+  const descargarInformeGeneral = async () => {
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/informe-general-cap2",
+        {
+          matrizA: matrix.map((row) => row.map(Number)),
+          vectorB: vectorB.map(Number),
+          x0: x0.map(Number),
+          tol: parseFloat(tolerance),
+          max_iter: parseInt(iterations),
+          norma: norm,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Informe_general_capitulo2.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      alert(
+        error.response?.data?.message ||
+          "Error al descargar el informe general Capítulo 2."
+      );
+    }
+  };
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Jacobi</h1>
@@ -416,6 +477,37 @@ const Jacobi = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                disabled={
+                  !matrix.length ||
+                  !vectorB.length ||
+                  !x0.length ||
+                  tolerance === "" ||
+                  iterations === ""
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe Jacobi
+              </button>
+
+              <button
+                type="button"
+                onClick={descargarInformeGeneral}
+                disabled={
+                  !matrix.length ||
+                  !vectorB.length ||
+                  !x0.length ||
+                  tolerance === "" ||
+                  iterations === ""
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                Descargar Informe General
+              </button>
             </div>
           </div>
         )}

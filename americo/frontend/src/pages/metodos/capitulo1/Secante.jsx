@@ -89,22 +89,34 @@ function Secante() {
     }
   };
 
-  const generarInforme = () => {
-    if (!resultado?.tabla) return;
-    let texto = "INFORME MÉTODO DE LA SECANTE\n\n";
-    texto += `Función: ${params.funcion}\n\n`;
-    texto += "Iteración | x0 | x1 | f(x0) | f(x1) | error\n";
-    texto += "------------------------------------------\n";
-    resultado.tabla.forEach((row, i) => {
-      texto += `Iteración ${i}: x0=${row.x0}, x1=${row.x1}, f(x0)=${row.fx0}, f(x1)=${row.fx1}, error=${row.error}\n`;
-    });
+  const descargarInformeIndividual = async () => {
+    if (!resultado) return;
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/informe-individual-cap1",
+        {
+          metodo: "secante",
+          datos: {
+            funcion: params.funcion,
+            x0: params.x0,
+            x1: params.x1,
+            tolerancia: params.tolerancia,
+            max_iter: params.max_iter,
+          },
+          resultado: resultado,
+        },
+        { responseType: "blob" }
+      );
 
-    const blob = new Blob([texto], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "informe_secante.txt";
-    a.click();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "informe_secante.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al generar el informe:", error);
+    }
   };
 
   return (
@@ -306,9 +318,15 @@ function Secante() {
               </table>
             </div>
 
-            <button className="informe-btn" onClick={generarInforme}>
-              Generar informe
-            </button>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                style={{ marginBottom: "20px" }}
+              >
+                Descargar Informe Secante
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -101,6 +101,34 @@ const Newton = () => {
     }
   };
 
+  const descargarInformeIndividual = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/informe-individual-cap1",
+        {
+          metodo: "newton",
+          datos: {
+            funcion: params.funcion,
+            x0: params.x0,
+            tolerancia: params.tolerancia,
+            max_iter: params.max_iter,
+          },
+          resultado: tabla,
+        },
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "informe_newton.xlsx");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.error("Error al generar el informe:", error);
+    }
+  };
+
   return (
     <div className="metodo-principal-page">
       <h1 className="titulo-principal">Método de Newton-Raphson</h1>
@@ -267,6 +295,15 @@ const Newton = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="botones-informe" style={{ marginTop: "2rem" }}>
+              <button
+                type="button"
+                onClick={descargarInformeIndividual}
+                style={{ marginBottom: "20px" }}
+              >
+                Descargar Informe Newton-Raphson
+              </button>
             </div>
           </div>
         )}

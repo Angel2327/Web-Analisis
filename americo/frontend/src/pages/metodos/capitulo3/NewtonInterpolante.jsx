@@ -202,7 +202,7 @@ export default function NewtonInterpolante() {
       const yPoints = points.map((p) => parseFloat(p.y));
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/informe-individual",
+        "http://127.0.0.1:8000/api/informe-individual-cap3",
         {
           metodo: "newton",
           xPoints,
@@ -232,7 +232,7 @@ export default function NewtonInterpolante() {
       const yPoints = points.map((p) => parseFloat(p.y));
 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/informe-general",
+        "http://127.0.0.1:8000/api/informe-general-cap3",
         { xPoints, yPoints },
         { responseType: "blob" }
       );

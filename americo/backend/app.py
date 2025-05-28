@@ -3,8 +3,11 @@ from flask_cors import CORS
 import sympy as sp
 from flask import send_file
 from utils.generar_informe_excel import (
-    generar_informe_individual,
-    generar_informe_general,
+    generar_informe_individual_cap1,
+    generar_informe_individual_cap2,
+    generar_informe_general_cap2,
+    generar_informe_individual_cap3,
+    generar_informe_general_cap3,
 )
 from utils.graficar_funcion import graficar_funcion
 from metodos.capitulo1.biseccion import metodo_biseccion
@@ -273,7 +276,99 @@ def spline():
         return jsonify({"message": "Error interno en el servidor"}), 500
 
 
-@app.route("/api/informe-individual", methods=["POST"])
+@app.route("/api/informe-individual-cap1", methods=["POST"])
+def informe_individual_cap1():
+    try:
+        data = request.json
+        metodo = data.get("metodo")
+
+        if not metodo:
+            return jsonify({"message": "Método no especificado"}), 400
+
+        archivo_excel = generar_informe_individual_cap1(metodo, data)
+
+        return send_file(
+            archivo_excel,
+            as_attachment=True,
+            download_name=f"informe_{metodo}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    except Exception as e:
+        print(f"Error interno: {e}")
+        return (
+            jsonify({"message": f"Error generando informe individual: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/api/informe-individual-cap2", methods=["POST"])
+def informe_individual_cap2():
+    try:
+        data = request.json
+        metodo = data.get("metodo")
+        matrizA = data.get("matrizA")
+        vectorB = data.get("vectorB")
+        x0 = data.get("x0")
+        tol = data.get("tol")
+        max_iter = data.get("max_iter")
+        norma = data.get("norma", "inf")
+        omega = data.get("omega", "1.0")
+
+        if not metodo or matrizA is None or vectorB is None or x0 is None:
+            return jsonify({"message": "Datos incompletos"}), 400
+
+        archivo_excel = generar_informe_individual_cap2(
+            metodo, matrizA, vectorB, x0, tol, max_iter, norma, omega
+        )
+
+        return send_file(
+            archivo_excel,
+            as_attachment=True,
+            download_name=f"informe_{metodo}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    except Exception as e:
+        return (
+            jsonify({"message": f"Error generando informe individual: {str(e)}"}),
+            500,
+        )
+
+
+@app.route("/api/informe-general-cap2", methods=["POST"])
+def informe_general_cap2():
+    try:
+        data = request.json
+        matrizA = data.get("matrizA")
+        vectorB = data.get("vectorB")
+        x0 = data.get("x0")
+        tol = data.get("tol")
+        max_iter = data.get("max_iter")
+        norma = data.get("norma", "inf")
+
+        if matrizA is None or vectorB is None or x0 is None:
+            return (
+                jsonify({"message": "Debe proporcionar todos los datos necesarios"}),
+                400,
+            )
+
+        archivo_excel, mejor_metodo = generar_informe_general_cap2(
+            matrizA, vectorB, x0, tol, max_iter, norma
+        )
+
+        return send_file(
+            archivo_excel,
+            as_attachment=True,
+            download_name="informe_general_capitulo2.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+    except Exception as e:
+        return jsonify({"message": f"Error generando informe general: {str(e)}"}), 500
+
+
+@app.route("/api/informe-individual-cap3", methods=["POST"])
 def informe_individual():
     try:
         data = request.json
@@ -285,7 +380,7 @@ def informe_individual():
         if not metodo or not xPoints or not yPoints:
             return jsonify({"message": "Datos incompletos"}), 400
 
-        archivo_excel = generar_informe_individual(
+        archivo_excel = generar_informe_individual_cap3(
             metodo, xPoints, yPoints, tipo_spline
         )
 
@@ -303,7 +398,7 @@ def informe_individual():
         )
 
 
-@app.route("/api/informe-general", methods=["POST"])
+@app.route("/api/informe-general-cap3", methods=["POST"])
 def informe_general():
     try:
         data = request.json
@@ -313,7 +408,7 @@ def informe_general():
         if not xPoints or not yPoints:
             return jsonify({"message": "Debe proporcionar puntos X e Y"}), 400
 
-        archivo_excel, _ = generar_informe_general(xPoints, yPoints)
+        archivo_excel, _ = generar_informe_general_cap3(xPoints, yPoints)
 
         return send_file(
             archivo_excel,
